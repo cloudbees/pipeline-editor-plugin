@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Pipeline factory</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <script src="js/belay.js"></script> <!-- from: https://gist.github.com/michaelneale/3ef09369e6c0a3295978 -->
+    
+    <script src="editor_modules.js"></script>
+    <script src="editor.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <!-- CJP header schtuff -->
+    <link href="css/cjp.css" rel="stylesheet">
+    
+    <link href="css/wrap-fix.css" rel="stylesheet">
+    
+    
+    
+  </head>
+  <body>
+    
+    
+    <div id="header"><div class="logo"><img id="jenkins-head-icon" alt="title" src="images/headshot.png"><span id="jenkins-name-icon"><strong>CloudBees </strong><span>Jenkins Enterprise</span></span></div></div>
+        &nbsp;
+
+
+        <!--
+         Pipeline magic happens here.
+       -->        
+        <div class="container stage-listing">          
+          <div id="pipeline-row" class="row"></div>        
+         </div>
+        
+        
+        <!-- the detail is shown in here -->
+        <div class="container stage-detail">
+          <div class="row">
+            <h3 class="col-md-12" id="editor-heading"></h3>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="panel panel-default">
+                      <div id="editor-panel" class="panel-body editor-detail"> 
+                          Click on a Step to view the details. 
+                      </div>
+                </div>              
+              </div>              
+            </div>
+          </div>
+          
+        </div>
+        
+        <div class="container" style="font-family:monospace;">
+          <h3>debug workflow script:</h3>
+          <div id="workflow-debug-script"></div>          
+        </div>
+                
+          
+        
+    
+        <script src="data.js"></script>
+
+        <script>
+          
+          initSVG();
+
+          //pipeline is the current data.
+          console.log(pipeline);
+          drawPipeline();
+
+          $(window).resize(function(){            
+            drawPipeline();
+          });
+
+          printDebugScript();
+
+        </script>
+
+
+
+    
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    
+    
+
+    
+    
+  </body>
+</html>
