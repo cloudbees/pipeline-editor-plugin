@@ -1000,9 +1000,18 @@ exports.setDefaultTimeout = function(millis) {
     defaultTimeout = millis;
 }
 },{}],8:[function(require,module,exports){
+
+exports.yeah = function() {
+  console.log('hey222');
+};
+
+},{}],9:[function(require,module,exports){
 var $ = require('bootstrap-detached').getBootstrap();
+var h = require('./hello');
 
 $(document).ready(function () {    
+  
+  console.log(h.yeah());
 
   var script = $("input[name='_.script']");
   var json = $("input[name='_.json']");
@@ -1053,4 +1062,4 @@ function bootstrap() {
 }
 
 		require('jenkins-js-modules').export(undefined, 'pipelineeditor', {});
-},{"bootstrap-detached":2,"jenkins-js-modules":3}]},{},[8]);
+},{"./hello":8,"bootstrap-detached":2,"jenkins-js-modules":3}]},{},[9]);

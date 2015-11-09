@@ -1,6 +1,9 @@
 var $ = require('bootstrap-detached').getBootstrap();
+var h = require('./hello');
 
 $(document).ready(function () {    
+  
+  console.log(h.yeah());
 
   var script = $("input[name='_.script']");
   var json = $("input[name='_.json']");
