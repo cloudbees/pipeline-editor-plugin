@@ -3,7 +3,7 @@
   <f:block>
     <st:adjunct includes="org.jenkinsci.plugins.pipelineeditor.pipelineeditor"/>
     <input type="button" value="${%Edit}" id="edit-pipeline" class="pipeline-editor" />
-    <input type="hidden" name="_.script" value="${it.script}"/>
-    <input type="hidden" name="_.json" value="${it.json}"/>
+    <input type="hidden" name="_.script" value="${instance.script}"/>
+    <input type="hidden" name="_.json" value="${instance.json}"/>
   </f:block>  
 </j:jelly>
