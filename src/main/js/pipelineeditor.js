@@ -35,8 +35,11 @@ function showEditor($, confEditor, pageBody, script, json) {
     window.location.hash = "";
   });
   
-  console.log(script);
-  console.log(json);
+  console.log(script.val());
+  console.log(json.val());
+  
+  
+  script.val("yeah");
 
 }
 
