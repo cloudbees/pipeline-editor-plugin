@@ -336,7 +336,7 @@ exports.drawPipeline = function () {
     }
   }
   
-  autoJoin();
+  autoJoinDelay();
   
 }
 
@@ -493,13 +493,13 @@ function autoJoinDelay() {
   Belay.off();
   setTimeout(function() {
     autoJoin();
-  }, 300);
+  }, 500);
 }
 
 /**
  * Before SVG can be used need to set it up. Only needed once per whole page refresh.
  */
-function initSVG() {
+exports.initSVG = function() {
   Belay.init({strokeWidth: 2});
   Belay.set('strokeColor', '#999');
 }

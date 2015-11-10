@@ -1338,7 +1338,7 @@ exports.drawPipeline = function () {
     }
   }
   
-  autoJoin();
+  autoJoinDelay();
   
 }
 
@@ -1495,13 +1495,13 @@ function autoJoinDelay() {
   Belay.off();
   setTimeout(function() {
     autoJoin();
-  }, 300);
+  }, 500);
 }
 
 /**
  * Before SVG can be used need to set it up. Only needed once per whole page refresh.
  */
-function initSVG() {
+exports.initSVG = function() {
   Belay.init({strokeWidth: 2});
   Belay.set('strokeColor', '#999');
 }
@@ -1589,7 +1589,7 @@ exports.yeah = function() {
 
 },{"bootstrap-detached":2}],9:[function(require,module,exports){
 var $ = require('bootstrap-detached').getBootstrap();
-var h = require('./hello');
+var h = require('./editor');
 
 $(document).ready(function () {    
 
@@ -1619,7 +1619,7 @@ function showEditor($, confEditor, pageBody, script, json) {
   confEditor.hide();    
   window.location.hash = "#pipeline-editor";
   pageBody.append("<div id='pipeline-visual-editor'>" +
-                  bootstrap() + "<div class='bootstrap-3'>" +
+                  bootstrap() + "<div class='bootstrap-3'><p>" +
                   pipelineEditorArea() +
                   detailContainer() +
                   "<input id='back-to-config' type=button class='btn' value='Done'></input><span class='glyphicon glyphicon-search' aria-hidden='true'></span></div></div>");
@@ -1633,7 +1633,9 @@ function showEditor($, confEditor, pageBody, script, json) {
   console.log(script.val());
   console.log(json.val());
   
+  h.initSVG();
   h.drawPipeline();
+   
   
   script.val("yeah");
 
@@ -1671,4 +1673,4 @@ function detailContainer() {
 }
 
 		require('jenkins-js-modules').export(undefined, 'pipelineeditor', {});
-},{"./hello":8,"bootstrap-detached":2,"jenkins-js-modules":3}]},{},[9]);
+},{"./editor":8,"bootstrap-detached":2,"jenkins-js-modules":3}]},{},[9]);

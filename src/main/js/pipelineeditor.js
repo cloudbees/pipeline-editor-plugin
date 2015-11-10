@@ -1,5 +1,5 @@
 var $ = require('bootstrap-detached').getBootstrap();
-var h = require('./hello');
+var h = require('./editor');
 
 $(document).ready(function () {    
 
@@ -29,7 +29,7 @@ function showEditor($, confEditor, pageBody, script, json) {
   confEditor.hide();    
   window.location.hash = "#pipeline-editor";
   pageBody.append("<div id='pipeline-visual-editor'>" +
-                  bootstrap() + "<div class='bootstrap-3'>" +
+                  bootstrap() + "<div class='bootstrap-3'><p>" +
                   pipelineEditorArea() +
                   detailContainer() +
                   "<input id='back-to-config' type=button class='btn' value='Done'></input><span class='glyphicon glyphicon-search' aria-hidden='true'></span></div></div>");
@@ -43,7 +43,9 @@ function showEditor($, confEditor, pageBody, script, json) {
   console.log(script.val());
   console.log(json.val());
   
+  h.initSVG();
   h.drawPipeline();
+   
   
   script.val("yeah");
 
