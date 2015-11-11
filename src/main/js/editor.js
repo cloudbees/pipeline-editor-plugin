@@ -335,9 +335,16 @@ exports.drawPipeline = function () {
             
     }
   }
-  
-  autoJoinDelay();
-  
+  autoJoinDelay();  
+  addAutoJoinHooks();
+}
+
+/** We will want to redraw the joins in some cases */
+function addAutoJoinHooks() {
+  $(".autojoin").click(function() {
+    autoJoinDelay();
+  });
+
 }
 
 /**
@@ -345,9 +352,8 @@ exports.drawPipeline = function () {
  */
 function parStageBlock(stageName, subStageId, subStage) {
   var subStageName = stageName + ": " +  subStage['name'];
-  //OMG String + + String == weirdness!
   return '<li><div id="' + subStageId + '"  class="panel panel-default"><div class="panel-heading">' +
-                  '<a role="button" onclick="javascript:autoJoinDelay();" data-toggle="collapse" href="#' + subStageId + '_collapse">'  + 
+                  '<a role="button" class="autojoin" data-toggle="collapse" href="#' + subStageId + '_collapse">'  + 
                   subStageName + '</a>' + '<div class="collapse" id="' + subStageId + '_collapse">' +
                   stepListing(subStageId, subStage.steps) + '</div>'
                   + '</div></div></li>';
@@ -358,7 +364,7 @@ function parStageBlock(stageName, subStageId, subStage) {
  */
 function normalStageBlock(currentId, stage) {
   return '<div class="col-md-3"><div id="' + currentId + '" class="panel panel-default"><div class="panel-heading">' 
-                + '<a role="button" onclick="javascript:autoJoinDelay();" data-toggle="collapse" href="#' + currentId + '_collapse">' + 
+                + '<a role="button" class="autojoin" data-toggle="collapse" href="#' + currentId + '_collapse">' + 
                 stage['name'] + '</a>' + '<div class="collapse" id="' + currentId + '_collapse">' +
                 stepListing(currentId, stage.steps) + '</div>' + '</div></div></div>';
 }
