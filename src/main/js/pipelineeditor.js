@@ -1,16 +1,14 @@
 var $ = require('bootstrap-detached').getBootstrap();
 var h = require('./editor');
+window.mic = $; //For debugging!
 
 $(document).ready(function () {    
-
-  //h.yeah();
 
   var script = $("input[name='_.script']");
   var json = $("input[name='_.json']");
   var confEditor = $('#page-body > div');
   var pageBody = $('#page-body');
   
-  window.mic = $; //For debugging!
   
   if ("#pipeline-editor" === window.location.hash) {
     showEditor($, confEditor, pageBody, script, json);

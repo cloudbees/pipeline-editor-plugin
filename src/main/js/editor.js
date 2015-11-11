@@ -1,6 +1,6 @@
 
 var $ = require('bootstrap-detached').getBootstrap();
-
+ 
 var Belay = (function(){
   var settings = {
                     strokeColor       : '#fff',
@@ -337,6 +337,11 @@ exports.drawPipeline = function () {
   }
   autoJoinDelay();  
   addAutoJoinHooks();
+
+  $(".open-editor").click(function(){
+    openEditor($( this ).attr('data-action-id'));
+  });
+
 }
 
 /** We will want to redraw the joins in some cases */
@@ -345,6 +350,14 @@ function addAutoJoinHooks() {
     autoJoinDelay();
   });
 
+}
+
+/** need to give the user an option to apply the change... TODO: perhaps don't, just apply */
+function addApplyChangesHooks() {
+   $(".apply-pipe-changes").click(function() {
+     console.log("applying changes to " + $( this ).attr('data-action-id'));
+     handleEditorSave($( this ).attr('data-action-id'));
+   });   
 }
 
 /**
@@ -358,7 +371,7 @@ function parStageBlock(stageName, subStageId, subStage) {
                   stepListing(subStageId, subStage.steps) + '</div>'
                   + '</div></div></li>';
 }
-
+ 
 /**
  * A non parallel stage. Parallel stages are a pipeline editor construct, not an inherent workflow property.
  */
@@ -379,7 +392,7 @@ function stepListing(stageId, steps)  {
     buttons = '&nbsp;';
     for (var j=0; j < steps.length; ++j) {
         actionId = stageId + "-" + j;                
-        buttons += '<a class="list-group-item" href="#" onClick="javascript:openEditor(\'' + actionId + '\')">' + steps[j]['name'] +'</a>';      
+        buttons += '<a class="list-group-item open-editor" href="#" data-action-id="' + actionId + '">' + steps[j]['name'] +'</a>';      
     }  
     return '<div class="list-group">' + buttons + '</div>'    
   }
@@ -398,20 +411,23 @@ function openEditor(actionId) {
   var editPanel = $('#editor-panel');
   editPanel.empty();
   //console.log(template);
-  var saveButton = '<button type="button" class="btn btn-default" onClick="javascript:handleEditorSave(\'' + actionId + '\')">Save</button>';
+  var saveButton = '<button type="button" class="btn btn-default apply-pipe-changes" data-action-id="' + actionId + '">Save</button>';
   editPanel.append("<form>" + editorHtml + saveButton + "</form>");    
   
   var stageInfo = pipeline[coordinates[0]];
   $('#editor-heading').text(stageInfo['name'] + " / " + stepInfo['name']);
+  
+  addApplyChangesHooks();
 }
 
 function handleEditorSave(actionId) {
   var currentStep = fetchStep(actionIdToStep(actionId), pipeline);
   var edModule = editorModules[currentStep['type']];
   if (edModule.readChanges(actionId, currentStep)) {
-      drawPipeline();
+      exports.drawPipeline();
   }
-  printDebugScript();
+  //TODO: need to render out here.
+  //printDebugScript();
 }
 
 /**
