@@ -27,7 +27,8 @@ function showEditor($, confEditor, pageBody, script, json) {
   confEditor.hide();    
   window.location.hash = "#pipeline-editor";
   pageBody.append("<div id='pipeline-visual-editor'>" +
-                  bootstrap() + "<div class='bootstrap-3'><p>" +
+                  "<div class='bootstrap-3'><p>" +
+                  fixFlowCSS() +
                   pipelineEditorArea() +
                   detailContainer() +
                   "<input id='back-to-config' type=button class='btn' value='Done'></input><span class='glyphicon glyphicon-search' aria-hidden='true'></span></div></div>");
@@ -44,18 +45,12 @@ function showEditor($, confEditor, pageBody, script, json) {
   h.initSVG();
   h.drawPipeline();
    
-  
   script.val("yeah");
 
 }
 
-/**
- * As we clear the page body, we can add our own bootstrap. 
- */
-function bootstrap() {
-  return '';//'<link id="pipeline-strapstyle" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" ></link>';
-}
 
+/** The bit that holds the pipeline visualisation */
 function pipelineEditorArea() {
   return '<div class="container stage-listing">          ' +
     '<div id="pipeline-row" class="row"></div>        ' +
@@ -63,6 +58,7 @@ function pipelineEditorArea() {
 }
 
 
+/** container for holding the specific editors depending on what is clicked */
 function detailContainer() {
   return '<div class="container stage-detail">' +
     '<div class="row">' +
@@ -78,4 +74,15 @@ function detailContainer() {
       '</div>' +
     '</div>    ' +
   '</div>';
+}
+
+/** 
+ * This will fix a problem with wrapping elements in bootstrap 
+ * this is documented here: http://stackoverflow.com/questions/25598728/irregular-bootstrap-column-wrapping 
+ * Without this, things won't wrap clearly left to right. Read it. 
+ */
+function fixFlowCSS() {
+  return '<style>.stage-listing > .row > .col-md-3:nth-child(4n+1) {' +
+    'clear: both;' +
+  '}</style>;'
 }
