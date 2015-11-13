@@ -1246,6 +1246,8 @@ require('jenkins-js-modules')
 
 var $ = require('jenkins-js-modules').require('bootstrap:bootstrap3').getBootstrap();
 var h = require('./editor');
+var Belay = require('./svg'); 
+
 window.mic = $; //For debugging!
 
 $(document).ready(function () {    
@@ -1277,12 +1279,14 @@ function showEditor($, confEditor, pageBody, script, json) {
                   fixFlowCSS() +
                   pipelineEditorArea() +
                   detailContainer() +
-                  "<input id='back-to-config' type=button class='btn' value='Done'></input><span class='glyphicon glyphicon-search' aria-hidden='true'></span></div></div>");
+                  "<div class='container'><input id='back-to-config' type=button class='btn btn-primary' value='Done'></input></div>"+
+                  "</div></div>");
                   
   $('#back-to-config').click(function() {      
     confEditor.show();       
     $("#pipeline-visual-editor").remove();     
     window.location.hash = "";
+    Belay.off();
   });
   
   console.log(script.val());
@@ -1336,7 +1340,7 @@ function fixFlowCSS() {
 		require('jenkins-js-modules').export(undefined, 'pipelineeditor', {});
     });
 
-},{"./editor":5,"jenkins-js-modules":1}],7:[function(require,module,exports){
+},{"./editor":5,"./svg":8,"jenkins-js-modules":1}],7:[function(require,module,exports){
 /**
  * Editor modules for the build in steps.
  */

@@ -1,5 +1,7 @@
 var $ = require('bootstrap-detached').getBootstrap();
 var h = require('./editor');
+var Belay = require('./svg'); 
+
 window.mic = $; //For debugging!
 
 $(document).ready(function () {    
@@ -31,12 +33,14 @@ function showEditor($, confEditor, pageBody, script, json) {
                   fixFlowCSS() +
                   pipelineEditorArea() +
                   detailContainer() +
-                  "<input id='back-to-config' type=button class='btn' value='Done'></input><span class='glyphicon glyphicon-search' aria-hidden='true'></span></div></div>");
+                  "<div class='container'><input id='back-to-config' type=button class='btn btn-primary' value='Done'></input></div>"+
+                  "</div></div>");
                   
   $('#back-to-config').click(function() {      
     confEditor.show();       
     $("#pipeline-visual-editor").remove();     
     window.location.hash = "";
+    Belay.off();
   });
   
   console.log(script.val());
