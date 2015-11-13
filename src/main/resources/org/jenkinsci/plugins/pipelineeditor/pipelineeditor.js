@@ -1038,7 +1038,7 @@ function stepListing(stageId, steps)  {
     buttons = '&nbsp;';
     for (var j=0; j < steps.length; ++j) {
         actionId = stageId + "-" + j;                
-        buttons += '<a class="list-group-item open-editor" href="#" data-action-id="' + actionId + '">' + steps[j]['name'] +'</a>';      
+        buttons += '<button class="list-group-item open-editor" data-action-id="' + actionId + '">' + steps[j]['name'] +'</a>';      
     }  
     return '<div class="list-group">' + buttons + '</div>'    
   }
