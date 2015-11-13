@@ -885,116 +885,8 @@ exports.setDefaultTimeout = function(millis) {
 },{}],5:[function(require,module,exports){
 
 var $ = require('jenkins-js-modules').require('bootstrap:bootstrap3').getBootstrap();
- 
-var Belay = (function(){
-  var settings = {
-                    strokeColor       : '#fff',
-                    strokeWidth       : 10,
-                    opacity           : 1,
-                    fill              : 'none',
-                    animate           : true,
-                    animationDirection: 'right',
-                    animationDuration : .3
-                 };
-  var me = {};
-
-  me.init = function(initObj) {
-      if (initObj) {
-        $.each(initObj, function(index, value) {
-           //TODO validation on settings
-           settings[index] = value;
-        });
-      }
-  }
-
-  me.set = function(prop, val){
-    //TODO validate
-    settings[prop] = val;
-  }
-
-  me.on = function(el1, el2){
-    var $el1 = $(el1);
-    var $el2 = $(el2);
-    if ($el1.length && $el2.length) {
-      var svgheight
-          ,p
-          ,svgleft
-          ,svgtop
-          ,svgwidth
-
-      var el1pos = $(el1).offset();
-      var el2pos = $(el2).offset();
-
-      var el1H = $(el1).outerHeight();
-      var el1W = $(el1).outerWidth();
-
-      var el2H = $(el2).outerHeight();
-      var el2W = $(el2).outerWidth();
-
-      svgleft = Math.round(el1pos.left + el1W);
-      svgwidth = Math.round(el2pos.left - svgleft);
-
-      var curvinessFactor, cpt;
-
-      ////Determine which is higher/lower
-      if( (el2pos.top+(el2H/2)) <= ( el1pos.top+(el1H/2))){
-        // console.log("low to high");        
-        svgheight = Math.round((el1pos.top+el1H/2) - (el2pos.top+el2H/2));
-        svgtop = Math.round(el2pos.top + el2H/2) - settings.strokeWidth;        
-        cpt = Math.round(svgwidth*Math.min(svgheight/300, 1));
-        p = "M0,"+ (svgheight+settings.strokeWidth) +" C"+cpt+","+(svgheight+settings.strokeWidth)+" "+(svgwidth-cpt)+"," + settings.strokeWidth + " "+svgwidth+"," + settings.strokeWidth;          
-      }else{
-        // console.log("high to low");
-        svgheight = Math.round((el2pos.top+el2H/2) - (el1pos.top+el1H/2));
-        svgtop = Math.round(el1pos.top + el1H/2) - settings.strokeWidth;  
-        cpt = Math.round(svgwidth*Math.min(svgheight/300, 1));
-        p = "M0," + settings.strokeWidth + " C"+ cpt +",0 "+ (svgwidth-cpt) +","+(svgheight+settings.strokeWidth)+" "+svgwidth+","+(svgheight+settings.strokeWidth);                  
-      }
-      
-      //ugly one-liner
-      $ropebag = $('#ropebag').length ? $('#ropebag') : $('body').append($( "<div id='ropebag' />" )).find('#ropebag');
-
-      var svgnode = document.createElementNS('http://www.w3.org/2000/svg','svg');
-      var newpath = document.createElementNS('http://www.w3.org/2000/svg',"path");
-      newpath.setAttributeNS(null, "d", p);
-      newpath.setAttributeNS(null, "stroke", settings.strokeColor);
-      newpath.setAttributeNS(null, "stroke-width", settings.strokeWidth);
-      newpath.setAttributeNS(null, "opacity", settings.opacity);
-      newpath.setAttributeNS(null, "fill", settings.fill);      
-      svgnode.appendChild(newpath);
-      //for some reason, adding a min-height to the svg div makes the lines appear more correctly.
-      $(svgnode).css({left: svgleft, top: svgtop, position: 'absolute',width: svgwidth, height: svgheight + settings.strokeWidth*2, minHeight: '20px' });
-      $ropebag.append(svgnode);
-      if (settings.animate) {
-        // THANKS to http://jakearchibald.com/2013/animated-line-drawing-svg/
-        var pl = newpath.getTotalLength();
-        // Set up the starting positions
-        newpath.style.strokeDasharray = pl + ' ' + pl;
-
-        if (settings.animationDirection == 'right') {
-          newpath.style.strokeDashoffset = pl;
-        } else {
-          newpath.style.strokeDashoffset = -pl;
-        }
-
-        // Trigger a layout so styles are calculated & the browser
-        // picks up the starting position before animating
-        // WON'T WORK IN IE. If you want that, use requestAnimationFrame to update instead of CSS animation
-        newpath.getBoundingClientRect();
-        newpath.style.transition = newpath.style.WebkitTransition ='stroke-dashoffset ' + settings.animationDuration + 's ease-in-out';
-        // Go!
-        newpath.style.strokeDashoffset = '0';
-      }
-    }
-  }
-
-  me.off = function(){
-    $("#ropebag").empty();
-  }
-
-  return me;
-}());
-
+var Belay = require('./svg'); 
+var editors = require('./steps/builtin');
 
 var pipeline = 
 [
@@ -1015,7 +907,7 @@ var pipeline =
   },
   
   
-
+ 
   {
     "name" : "Prepare",
     "streams" : [
@@ -1056,10 +948,398 @@ var pipeline =
 ]
 
 
+
+
+
 /**
- * editor modules. Needs to be loaded before editor.js.
+ * Draw the pipeline visualisation based on the pipeline data, including svg.
+ * Current pipeline is stored in the "pipeline" variable assumed to be in scope. 
+ */
+exports.drawPipeline = function () {  
+  pRow = $('#pipeline-row');
+  pRow.empty();
+  
+
+  
+  for (var i=0; i < pipeline.length; i++) {
+    var stage = pipeline[i];
+    var currentId = "stage-" + i;      
+    //append a block if non parallel
+    if (!isParallelStage(stage)) {      
+      stageElement = normalStageBlock(currentId, stage);
+      pRow.append(stageElement);
+    } else {      
+      subStages = "";
+      var currentPils = [];
+      for (j = 0; j < stage.streams.length; j++) {
+        var subStage = stage.streams[j];
+        var subStageId = currentId + "-" + j;                
+        subStages += parStageBlock(stage['name'], subStageId, subStage);
+      }      
+      stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + '</ul></div>';
+      pRow.append(stageElement);
+            
+    }
+  }
+  autoJoinDelay();  
+  addAutoJoinHooks();
+
+  $(".open-editor").click(function(){
+    openEditor($( this ).attr('data-action-id'));
+  });
+
+}
+
+/** We will want to redraw the joins in some cases */
+function addAutoJoinHooks() {
+  $(".autojoin").click(function() {
+    autoJoinDelay();
+  });
+
+}
+
+/** need to give the user an option to apply the change... TODO: perhaps don't, just apply */
+function addApplyChangesHooks() {
+   $(".apply-pipe-changes").click(function() {
+     console.log("applying changes to " + $( this ).attr('data-action-id'));
+     handleEditorSave($( this ).attr('data-action-id'));
+   });   
+}
+
+/**
+ * parallel stages are an item in an ordered list.
+ */
+function parStageBlock(stageName, subStageId, subStage) {
+  var subStageName = stageName + ": " +  subStage['name'];
+  return '<li><div id="' + subStageId + '"  class="panel panel-default"><div class="panel-heading">' +
+                  '<a role="button" class="autojoin" data-toggle="collapse" href="#' + subStageId + '_collapse">'  + 
+                  subStageName + '</a>' + '<div class="collapse" id="' + subStageId + '_collapse">' +
+                  stepListing(subStageId, subStage.steps) + '</div>'
+                  + '</div></div></li>';
+}
+ 
+/**
+ * A non parallel stage. Parallel stages are a pipeline editor construct, not an inherent workflow property.
+ */
+function normalStageBlock(currentId, stage) {
+  return '<div class="col-md-3"><div id="' + currentId + '" class="panel panel-default"><div class="panel-heading">' 
+                + '<a role="button" class="autojoin" data-toggle="collapse" href="#' + currentId + '_collapse">' + 
+                stage['name'] + '</a>' + '<div class="collapse" id="' + currentId + '_collapse">' +
+                stepListing(currentId, stage.steps) + '</div>' + '</div></div></div>';
+}
+
+/**
+ * Take a list of steps and return a listing of steps
+ */
+function stepListing(stageId, steps)  {
+  if (!steps) {
+    return '';
+  } else {
+    buttons = '&nbsp;';
+    for (var j=0; j < steps.length; ++j) {
+        actionId = stageId + "-" + j;                
+        buttons += '<a class="list-group-item open-editor" href="#" data-action-id="' + actionId + '">' + steps[j]['name'] +'</a>';      
+    }  
+    return '<div class="list-group">' + buttons + '</div>'    
+  }
+}
+
+/**
+ * Taking the actionId (co-ordinates), find the step info and load it up.
+ */
+function openEditor(actionId) {
+  var coordinates = actionIdToStep(actionId);
+
+  var stepInfo = fetchStep(coordinates, pipeline);
+  var editorModule = editors.lookupEditor(stepInfo['type']);
+   
+  var editorHtml = editorModule.renderEditor(stepInfo, actionId); 
+  var editPanel = $('#editor-panel');
+  editPanel.empty();
+  //console.log(template);
+  var saveButton = '<button type="button" class="btn btn-default apply-pipe-changes" data-action-id="' + actionId + '">Save</button>';
+  editPanel.append("<form>" + editorHtml + saveButton + "</form>");    
+  
+  var stageInfo = pipeline[coordinates[0]];
+  $('#editor-heading').text(stageInfo['name'] + " / " + stepInfo['name']);
+  
+  addApplyChangesHooks();
+}
+
+function handleEditorSave(actionId) {
+  var currentStep = fetchStep(actionIdToStep(actionId), pipeline);
+  var edModule = editors.lookupEditor(currentStep['type']);
+  if (edModule.readChanges(actionId, currentStep)) {
+      exports.drawPipeline();
+  }
+  //TODO: need to render out here.
+  //printDebugScript();
+}
+
+/**
+ * an actionId is something like stage-1-2 or stage-1-2-3
+ * This will return an array of the step co-ordinates.
+ * So stage-1-2 = [1,2]
+ *    stage-1-2-3 = [1,2,3]
+ * the first number is the stage index, second is the step or stream index. 
+ * the third number is if it is a parallel stage (so it is [stage, stream, step]) 
+ */
+function actionIdToStep(actionId) {
+    var elements = actionId.split('-');
+    switch (elements.length) {
+      case 3:
+        return [parseInt(elements[1]), parseInt(elements[2])];
+      case 4:
+        return [parseInt(elements[1]), parseInt(elements[2]), parseInt(elements[3])];  
+      default: 
+        console.log("ERROR: not a valid actionId");
+    }
+}
+
+/**
+ * Take 2 or 3 indexes and find the step out of the pipelineData.
+ */
+function fetchStep(coordinates, pipelineData) {
+   if (coordinates.length == 2) {
+     return pipelineData[coordinates[0]]['steps'][coordinates[1]];
+   } else {
+     return pipelineData[coordinates[0]]['streams'][coordinates[1]]['steps'][coordinates[2]];
+   }
+}
+
+
+
+/**
+  * Join up the pipeline elements visually allowing for parallelism.
+  * 
+  * from a pipeline that looks logically like: 
+  * ["stage-0", ["stage-1-0", "stage-1-1"], "stage-2"]
+  * 
+  * Becomes: 
+  * 
+  *      /[]\
+  * [] --    --[]
+  *      \[]/
+  *  
+  */
+function autoJoin() {  
+    Belay.off();
+    var previousPils = [];    
+    for (var i=0; i < pipeline.length; i++) {
+      var stage = pipeline[i];
+      var currentId = "stage-" + i;      
+      if (!isParallelStage(stage)) {      
+        joinWith(previousPils, currentId);      
+        previousPils = [currentId];      
+      } else {      
+        var currentPils = [];
+        for (j = 0; j < stage.streams.length; j++) {
+          currentPils[j] = currentId + "-" + j;                
+        }
+        for (var j=0; j < stage.streams.length; ++j) {
+            joinWith(previousPils, currentPils[j]);
+        }
+        previousPils = currentPils;              
+      }
+    }    
+}
+
+/**
+ * Draw the connecting lines using SVG and the div ids. 
+ */
+function joinWith(pilList, currentId) {
+  for (i = 0; i < pilList.length; i++) {
+    Belay.on("#" + pilList[i], "#" + currentId);
+  }
+}
+
+
+/**
+ * Wait until the steps are expanded before joining them together again
+ */
+function autoJoinDelay() {
+  Belay.off();
+  setTimeout(function() {
+    autoJoin();
+  }, 500);
+}
+
+/**
+ * Before SVG can be used need to set it up. Only needed once per whole page refresh.
+ */
+exports.initSVG = function() {
+  Belay.init({strokeWidth: 2});
+  Belay.set('strokeColor', '#999');
+}
+
+
+/**
+ * a parallel stage has to have streams
+ */
+function isParallelStage(stage) {
+  if (stage.streams && stage.streams.length > 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+
+
+/**
+ * Print out the workflow script using the given modules to render the steps. 
+ */ 
+function toWorkflow(pipelineData, modules) {
+  function toStreams(streamData, modules) {
+    var par = "\n    parallel (";  
+    for (var i = 0; i < streamData.length; i++) {
+        var stream = streamData[i];
+        par += '\n     "' + stream['name'] + '" : {';
+        par += toSteps(stream.steps, modules);      
+        if (i == (streamData.length - 1)) {
+            par += "\n     }"
+        } else {
+            par += "\n     },"
+        }
+    }
+    return par + "\n    )"; 
+  }
+
+  function toSteps(stepData, modules) {
+    var steps = "";
+    for (var i = 0; i < stepData.length; i++) {
+      var stepInfo = stepData[i];  
+      var mod  = modules[stepInfo['type']];
+      steps += "\n        " + mod.generateScript(stepInfo);
+    }
+    return steps;
+  }
+
+  var inner = "";
+  for (i = 0; i < pipelineData.length; i++) {
+    var stage = pipelineData[i];
+    inner += '\n    stage name: "' + stage['name'] + '"';
+    if (stage.streams) {      
+      inner += toStreams(stage.streams, modules);
+    } else {
+      inner += toSteps(stage.steps, modules);
+    }
+  }  
+  return "node {" + inner + "\n}";  
+}
+
+
+
+
+exports.yeah = function() {
+  console.log('hey222');
+  var confEditor = $('#page-body > div');
+  confEditor.hide();
+};
+
+},{"./steps/builtin":7,"./svg":8,"jenkins-js-modules":1}],6:[function(require,module,exports){
+require('jenkins-js-modules')
+    .import('bootstrap:bootstrap3')
+    .onFulfilled(function() {
+
+var $ = require('jenkins-js-modules').require('bootstrap:bootstrap3').getBootstrap();
+var h = require('./editor');
+window.mic = $; //For debugging!
+
+$(document).ready(function () {    
+
+  var script = $("input[name='_.script']");
+  var json = $("input[name='_.json']");
+  var confEditor = $('#page-body > div');
+  var pageBody = $('#page-body');
+  
+  
+  if ("#pipeline-editor" === window.location.hash) {
+    showEditor($, confEditor, pageBody, script, json);
+  }
+  
+  $('#edit-pipeline').click(function() {
+    showEditor($, confEditor, pageBody, script, json);
+  });
+
+});
+
+/**
+ * Clear the regular jenkins conf editor, show the pipeline editor
+ */ 
+function showEditor($, confEditor, pageBody, script, json) {
+  confEditor.hide();    
+  window.location.hash = "#pipeline-editor";
+  pageBody.append("<div id='pipeline-visual-editor'>" +
+                  "<div class='bootstrap-3'><p>" +
+                  fixFlowCSS() +
+                  pipelineEditorArea() +
+                  detailContainer() +
+                  "<input id='back-to-config' type=button class='btn' value='Done'></input><span class='glyphicon glyphicon-search' aria-hidden='true'></span></div></div>");
+                  
+  $('#back-to-config').click(function() {      
+    confEditor.show();       
+    $("#pipeline-visual-editor").remove();     
+    window.location.hash = "";
+  });
+  
+  console.log(script.val());
+  console.log(json.val());
+  
+  h.initSVG();
+  h.drawPipeline();
+   
+  script.val("yeah");
+
+}
+
+
+/** The bit that holds the pipeline visualisation */
+function pipelineEditorArea() {
+  return '<div class="container stage-listing">          ' +
+    '<div id="pipeline-row" class="row"></div>        ' +
+   '</div>';
+}
+
+
+/** container for holding the specific editors depending on what is clicked */
+function detailContainer() {
+  return '<div class="container stage-detail">' +
+    '<div class="row">' +
+      '<h3 class="col-md-12" id="editor-heading"></h3>' +
+      '<div class="row">' +
+        '<div class="col-md-12">' +
+          '<div class="panel panel-default">' +
+                '<div id="editor-panel" class="panel-body editor-detail"> ' +
+                    'Click on a Step to view the details. ' +
+                '</div>' +
+          '</div>              ' +
+        '</div>              ' +
+      '</div>' +
+    '</div>    ' +
+  '</div>';
+}
+
+/** 
+ * This will fix a problem with wrapping elements in bootstrap 
+ * this is documented here: http://stackoverflow.com/questions/25598728/irregular-bootstrap-column-wrapping 
+ * Without this, things won't wrap clearly left to right. Read it. 
+ */
+function fixFlowCSS() {
+  return '<style>.stage-listing > .row > .col-md-3:nth-child(4n+1) {' +
+    'clear: both;' +
+  '}</style>;'
+}
+
+		require('jenkins-js-modules').export(undefined, 'pipelineeditor', {});
+    });
+
+},{"./editor":5,"jenkins-js-modules":1}],7:[function(require,module,exports){
+/**
+ * Editor modules for the build in steps.
  */
 
+var $ = require('jenkins-js-modules').require('bootstrap:bootstrap3').getBootstrap();
 
 var ShellModule = {
     description: "Run a shell script",        
@@ -1181,235 +1461,21 @@ var RickModule = {
 };
 
 
-var editorModules = {
+editorModules = {
   "sh" : ShellModule,
   "git" : GitModule,
   "stash" : StashModule,
   "rick" : RickModule  
 };
 
-
-
-/**
- * Draw the pipeline visualisation based on the pipeline data, including svg.
- * Current pipeline is stored in the "pipeline" variable assumed to be in scope. 
- */
-exports.drawPipeline = function () {  
-  pRow = $('#pipeline-row');
-  pRow.empty();
-  
-
-  
-  for (var i=0; i < pipeline.length; i++) {
-    var stage = pipeline[i];
-    var currentId = "stage-" + i;      
-    //append a block if non parallel
-    if (!isParallelStage(stage)) {      
-      stageElement = normalStageBlock(currentId, stage);
-      pRow.append(stageElement);
-    } else {      
-      subStages = "";
-      var currentPils = [];
-      for (j = 0; j < stage.streams.length; j++) {
-        var subStage = stage.streams[j];
-        var subStageId = currentId + "-" + j;                
-        subStages += parStageBlock(stage['name'], subStageId, subStage);
-      }      
-      stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + '</ul></div>';
-      pRow.append(stageElement);
-            
-    }
-  }
-  autoJoinDelay();  
-  addAutoJoinHooks();
-
-  $(".open-editor").click(function(){
-    openEditor($( this ).attr('data-action-id'));
-  });
-
+exports.lookupEditor = function(type) {
+  return editorModules[type];
 }
 
-/** We will want to redraw the joins in some cases */
-function addAutoJoinHooks() {
-  $(".autojoin").click(function() {
-    autoJoinDelay();
-  });
-
+exports.listEditors = function() {
+  return editorModules;
 }
 
-/** need to give the user an option to apply the change... TODO: perhaps don't, just apply */
-function addApplyChangesHooks() {
-   $(".apply-pipe-changes").click(function() {
-     console.log("applying changes to " + $( this ).attr('data-action-id'));
-     handleEditorSave($( this ).attr('data-action-id'));
-   });   
-}
-
-/**
- * parallel stages are an item in an ordered list.
- */
-function parStageBlock(stageName, subStageId, subStage) {
-  var subStageName = stageName + ": " +  subStage['name'];
-  return '<li><div id="' + subStageId + '"  class="panel panel-default"><div class="panel-heading">' +
-                  '<a role="button" class="autojoin" data-toggle="collapse" href="#' + subStageId + '_collapse">'  + 
-                  subStageName + '</a>' + '<div class="collapse" id="' + subStageId + '_collapse">' +
-                  stepListing(subStageId, subStage.steps) + '</div>'
-                  + '</div></div></li>';
-}
- 
-/**
- * A non parallel stage. Parallel stages are a pipeline editor construct, not an inherent workflow property.
- */
-function normalStageBlock(currentId, stage) {
-  return '<div class="col-md-3"><div id="' + currentId + '" class="panel panel-default"><div class="panel-heading">' 
-                + '<a role="button" class="autojoin" data-toggle="collapse" href="#' + currentId + '_collapse">' + 
-                stage['name'] + '</a>' + '<div class="collapse" id="' + currentId + '_collapse">' +
-                stepListing(currentId, stage.steps) + '</div>' + '</div></div></div>';
-}
-
-/**
- * Take a list of steps and return a listing of steps
- */
-function stepListing(stageId, steps)  {
-  if (!steps) {
-    return '';
-  } else {
-    buttons = '&nbsp;';
-    for (var j=0; j < steps.length; ++j) {
-        actionId = stageId + "-" + j;                
-        buttons += '<a class="list-group-item open-editor" href="#" data-action-id="' + actionId + '">' + steps[j]['name'] +'</a>';      
-    }  
-    return '<div class="list-group">' + buttons + '</div>'    
-  }
-}
-
-/**
- * Taking the actionId (co-ordinates), find the step info and load it up.
- */
-function openEditor(actionId) {
-  var coordinates = actionIdToStep(actionId);
-
-  var stepInfo = fetchStep(coordinates, pipeline);
-  var editorModule = editorModules[stepInfo['type']];
-   
-  var editorHtml = editorModule.renderEditor(stepInfo, actionId); 
-  var editPanel = $('#editor-panel');
-  editPanel.empty();
-  //console.log(template);
-  var saveButton = '<button type="button" class="btn btn-default apply-pipe-changes" data-action-id="' + actionId + '">Save</button>';
-  editPanel.append("<form>" + editorHtml + saveButton + "</form>");    
-  
-  var stageInfo = pipeline[coordinates[0]];
-  $('#editor-heading').text(stageInfo['name'] + " / " + stepInfo['name']);
-  
-  addApplyChangesHooks();
-}
-
-function handleEditorSave(actionId) {
-  var currentStep = fetchStep(actionIdToStep(actionId), pipeline);
-  var edModule = editorModules[currentStep['type']];
-  if (edModule.readChanges(actionId, currentStep)) {
-      exports.drawPipeline();
-  }
-  //TODO: need to render out here.
-  //printDebugScript();
-}
-
-/**
- * an actionId is something like stage-1-2 or stage-1-2-3
- * This will return an array of the step co-ordinates.
- * So stage-1-2 = [1,2]
- *    stage-1-2-3 = [1,2,3]
- * the first number is the stage index, second is the step or stream index. 
- * the third number is if it is a parallel stage (so it is [stage, stream, step]) 
- */
-function actionIdToStep(actionId) {
-    var elements = actionId.split('-');
-    switch (elements.length) {
-      case 3:
-        return [parseInt(elements[1]), parseInt(elements[2])];
-      case 4:
-        return [parseInt(elements[1]), parseInt(elements[2]), parseInt(elements[3])];  
-      default: 
-        console.log("ERROR: not a valid actionId");
-    }
-}
-
-/**
- * Take 2 or 3 indexes and find the step out of the pipelineData.
- */
-function fetchStep(coordinates, pipelineData) {
-   if (coordinates.length == 2) {
-     return pipelineData[coordinates[0]]['steps'][coordinates[1]];
-   } else {
-     return pipelineData[coordinates[0]]['streams'][coordinates[1]]['steps'][coordinates[2]];
-   }
-}
-
-
-
-/**
-  * Join up the pipeline elements visually allowing for parallelism.
-  * 
-  * from a pipeline that looks logically like: 
-  * ["stage-0", ["stage-1-0", "stage-1-1"], "stage-2"]
-  * 
-  * Becomes: 
-  * 
-  *      /[]\
-  * [] --    --[]
-  *      \[]/
-  *  
-  */
-function autoJoin() {  
-    Belay.off();
-    var previousPils = [];    
-    for (var i=0; i < pipeline.length; i++) {
-      var stage = pipeline[i];
-      var currentId = "stage-" + i;      
-      if (!isParallelStage(stage)) {      
-        joinWith(previousPils, currentId);      
-        previousPils = [currentId];      
-      } else {      
-        var currentPils = [];
-        for (j = 0; j < stage.streams.length; j++) {
-          currentPils[j] = currentId + "-" + j;                
-        }
-        for (var j=0; j < stage.streams.length; ++j) {
-            joinWith(previousPils, currentPils[j]);
-        }
-        previousPils = currentPils;              
-      }
-    }    
-}
-
-/**
- * Draw the connecting lines using SVG and the div ids. 
- */
-function joinWith(pilList, currentId) {
-  for (i = 0; i < pilList.length; i++) {
-    Belay.on("#" + pilList[i], "#" + currentId);
-  }
-}
-
-
-/**
- * Wait until the steps are expanded before joining them together again
- */
-function autoJoinDelay() {
-  Belay.off();
-  setTimeout(function() {
-    autoJoin();
-  }, 500);
-}
-
-/**
- * Before SVG can be used need to set it up. Only needed once per whole page refresh.
- */
-exports.initSVG = function() {
-  Belay.init({strokeWidth: 2});
-  Belay.set('strokeColor', '#999');
-}
 
 /**
   * Templating in a few bytes eh.
@@ -1427,162 +1493,112 @@ function renderTemplate(template, values, moreValues) {
   return result;
 }
 
-
-/**
- * a parallel stage has to have streams
- */
-function isParallelStage(stage) {
-  if (stage.streams && stage.streams.length > 0) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-
-
-/**
- * Print out the workflow script using the given modules to render the steps. 
- */ 
-function toWorkflow(pipelineData, modules) {
-  function toStreams(streamData, modules) {
-    var par = "\n    parallel (";  
-    for (var i = 0; i < streamData.length; i++) {
-        var stream = streamData[i];
-        par += '\n     "' + stream['name'] + '" : {';
-        par += toSteps(stream.steps, modules);      
-        if (i == (streamData.length - 1)) {
-            par += "\n     }"
-        } else {
-            par += "\n     },"
-        }
-    }
-    return par + "\n    )"; 
-  }
-
-  function toSteps(stepData, modules) {
-    var steps = "";
-    for (var i = 0; i < stepData.length; i++) {
-      var stepInfo = stepData[i];  
-      var mod  = modules[stepInfo['type']];
-      steps += "\n        " + mod.generateScript(stepInfo);
-    }
-    return steps;
-  }
-
-  var inner = "";
-  for (i = 0; i < pipelineData.length; i++) {
-    var stage = pipelineData[i];
-    inner += '\n    stage name: "' + stage['name'] + '"';
-    if (stage.streams) {      
-      inner += toStreams(stage.streams, modules);
-    } else {
-      inner += toSteps(stage.steps, modules);
-    }
-  }  
-  return "node {" + inner + "\n}";  
-}
-
-
-
-
-exports.yeah = function() {
-  console.log('hey222');
-  var confEditor = $('#page-body > div');
-  confEditor.hide();
-};
-
-},{"jenkins-js-modules":1}],6:[function(require,module,exports){
-require('jenkins-js-modules')
-    .import('bootstrap:bootstrap3')
-    .onFulfilled(function() {
-
+},{"jenkins-js-modules":1}],8:[function(require,module,exports){
 var $ = require('jenkins-js-modules').require('bootstrap:bootstrap3').getBootstrap();
-var h = require('./editor');
-window.mic = $; //For debugging!
 
-$(document).ready(function () {    
+var settings = {
+                  strokeColor       : '#fff',
+                  strokeWidth       : 10,
+                  opacity           : 1,
+                  fill              : 'none',
+                  animate           : true,
+                  animationDirection: 'right',
+                  animationDuration : .3
+               };
 
-  var script = $("input[name='_.script']");
-  var json = $("input[name='_.json']");
-  var confEditor = $('#page-body > div');
-  var pageBody = $('#page-body');
-  
-  
-  if ("#pipeline-editor" === window.location.hash) {
-    showEditor($, confEditor, pageBody, script, json);
+
+exports.init = function(initObj) {
+    if (initObj) {
+      $.each(initObj, function(index, value) {
+         //TODO validation on settings
+         settings[index] = value;
+      });
+    }
+}
+
+exports.set = function(prop, val){
+  //TODO validate
+  settings[prop] = val;
+}
+
+exports.on = function(el1, el2){
+  var $el1 = $(el1);
+  var $el2 = $(el2);
+  if ($el1.length && $el2.length) {
+    var svgheight
+        ,p
+        ,svgleft
+        ,svgtop
+        ,svgwidth
+
+    var el1pos = $(el1).offset();
+    var el2pos = $(el2).offset();
+
+    var el1H = $(el1).outerHeight();
+    var el1W = $(el1).outerWidth();
+
+    var el2H = $(el2).outerHeight();
+    var el2W = $(el2).outerWidth();
+
+    svgleft = Math.round(el1pos.left + el1W);
+    svgwidth = Math.round(el2pos.left - svgleft);
+
+    var curvinessFactor, cpt;
+
+    ////Determine which is higher/lower
+    if( (el2pos.top+(el2H/2)) <= ( el1pos.top+(el1H/2))){
+      // console.log("low to high");        
+      svgheight = Math.round((el1pos.top+el1H/2) - (el2pos.top+el2H/2));
+      svgtop = Math.round(el2pos.top + el2H/2) - settings.strokeWidth;        
+      cpt = Math.round(svgwidth*Math.min(svgheight/300, 1));
+      p = "M0,"+ (svgheight+settings.strokeWidth) +" C"+cpt+","+(svgheight+settings.strokeWidth)+" "+(svgwidth-cpt)+"," + settings.strokeWidth + " "+svgwidth+"," + settings.strokeWidth;          
+    }else{
+      // console.log("high to low");
+      svgheight = Math.round((el2pos.top+el2H/2) - (el1pos.top+el1H/2));
+      svgtop = Math.round(el1pos.top + el1H/2) - settings.strokeWidth;  
+      cpt = Math.round(svgwidth*Math.min(svgheight/300, 1));
+      p = "M0," + settings.strokeWidth + " C"+ cpt +",0 "+ (svgwidth-cpt) +","+(svgheight+settings.strokeWidth)+" "+svgwidth+","+(svgheight+settings.strokeWidth);                  
+    }
+    
+    //ugly one-liner
+    $ropebag = $('#ropebag').length ? $('#ropebag') : $('body').append($( "<div id='ropebag' />" )).find('#ropebag');
+
+    var svgnode = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    var newpath = document.createElementNS('http://www.w3.org/2000/svg',"path");
+    newpath.setAttributeNS(null, "d", p);
+    newpath.setAttributeNS(null, "stroke", settings.strokeColor);
+    newpath.setAttributeNS(null, "stroke-width", settings.strokeWidth);
+    newpath.setAttributeNS(null, "opacity", settings.opacity);
+    newpath.setAttributeNS(null, "fill", settings.fill);      
+    svgnode.appendChild(newpath);
+    //for some reason, adding a min-height to the svg div makes the lines appear more correctly.
+    $(svgnode).css({left: svgleft, top: svgtop, position: 'absolute',width: svgwidth, height: svgheight + settings.strokeWidth*2, minHeight: '20px' });
+    $ropebag.append(svgnode);
+    if (settings.animate) {
+      // THANKS to http://jakearchibald.com/2013/animated-line-drawing-svg/
+      var pl = newpath.getTotalLength();
+      // Set up the starting positions
+      newpath.style.strokeDasharray = pl + ' ' + pl;
+
+      if (settings.animationDirection == 'right') {
+        newpath.style.strokeDashoffset = pl;
+      } else {
+        newpath.style.strokeDashoffset = -pl;
+      }
+
+      // Trigger a layout so styles are calculated & the browser
+      // picks up the starting position before animating
+      // WON'T WORK IN IE. If you want that, use requestAnimationFrame to update instead of CSS animation
+      newpath.getBoundingClientRect();
+      newpath.style.transition = newpath.style.WebkitTransition ='stroke-dashoffset ' + settings.animationDuration + 's ease-in-out';
+      // Go!
+      newpath.style.strokeDashoffset = '0';
+    }
   }
-  
-  $('#edit-pipeline').click(function() {
-    showEditor($, confEditor, pageBody, script, json);
-  });
-
-});
-
-/**
- * Clear the regular jenkins conf editor, show the pipeline editor
- */ 
-function showEditor($, confEditor, pageBody, script, json) {
-  confEditor.hide();    
-  window.location.hash = "#pipeline-editor";
-  pageBody.append("<div id='pipeline-visual-editor'>" +
-                  "<div class='bootstrap-3'><p>" +
-                  fixFlowCSS() +
-                  pipelineEditorArea() +
-                  detailContainer() +
-                  "<input id='back-to-config' type=button class='btn' value='Done'></input><span class='glyphicon glyphicon-search' aria-hidden='true'></span></div></div>");
-                  
-  $('#back-to-config').click(function() {      
-    confEditor.show();       
-    $("#pipeline-visual-editor").remove();     
-    window.location.hash = "";
-  });
-  
-  console.log(script.val());
-  console.log(json.val());
-  
-  h.initSVG();
-  h.drawPipeline();
-   
-  script.val("yeah");
-
 }
 
-
-/** The bit that holds the pipeline visualisation */
-function pipelineEditorArea() {
-  return '<div class="container stage-listing">          ' +
-    '<div id="pipeline-row" class="row"></div>        ' +
-   '</div>';
+exports.off = function(){
+  $("#ropebag").empty();
 }
 
-
-/** container for holding the specific editors depending on what is clicked */
-function detailContainer() {
-  return '<div class="container stage-detail">' +
-    '<div class="row">' +
-      '<h3 class="col-md-12" id="editor-heading"></h3>' +
-      '<div class="row">' +
-        '<div class="col-md-12">' +
-          '<div class="panel panel-default">' +
-                '<div id="editor-panel" class="panel-body editor-detail"> ' +
-                    'Click on a Step to view the details. ' +
-                '</div>' +
-          '</div>              ' +
-        '</div>              ' +
-      '</div>' +
-    '</div>    ' +
-  '</div>';
-}
-
-/** this will fix a problem with wrapping elements in bootstrap */
-function fixFlowCSS() {
-  return '<style>.stage-listing > .row > .col-md-3:nth-child(4n+1) {' +
-    'clear: both;' +
-  '}</style>;'
-}
-
-		require('jenkins-js-modules').export(undefined, 'pipelineeditor', {});
-    });
-
-},{"./editor":5,"jenkins-js-modules":1}]},{},[6]);
+},{"jenkins-js-modules":1}]},{},[6]);
