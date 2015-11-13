@@ -113,11 +113,11 @@ function addAutoJoinHooks() {
 
 }
 
-/** need to give the user an option to apply the change... TODO: perhaps don't, just apply */
+/** apply changes to any form-control elements */
 function addApplyChangesHooks() {
-   $(".apply-pipe-changes").click(function() {
-     console.log("applying changes to " + $( this ).attr('data-action-id'));
-     handleEditorSave($( this ).attr('data-action-id'));
+   $(".form-control").change(function() {
+     var actionId = $("#currently-editing").attr('data-action-id');     
+     handleEditorSave(actionId);
    });   
 }
 
@@ -171,9 +171,8 @@ function openEditor(actionId) {
   var editorHtml = editorModule.renderEditor(stepInfo, actionId); 
   var editPanel = $('#editor-panel');
   editPanel.empty();
-  //console.log(template);
-  var saveButton = '<button type="button" class="btn btn-default apply-pipe-changes" data-action-id="' + actionId + '">Save</button>';
-  editPanel.append("<form>" + editorHtml + saveButton + "</form>");    
+//  var saveButton = '<span id="currently-editing" data-action-id="' + actionId + '"></span>';
+  editPanel.append("<form id='currently-editing' data-action-id='" + actionId + "'>" + editorHtml + "</form>");    
   
   var stageInfo = pipeline[coordinates[0]];
   $('#editor-heading').text(stageInfo['name'] + " / " + stepInfo['name']);
@@ -185,8 +184,11 @@ function handleEditorSave(actionId) {
   var currentStep = fetchStep(actionIdToStep(actionId), pipeline);
   var edModule = editors.lookupEditor(currentStep['type']);
   if (edModule.readChanges(actionId, currentStep)) {
-      exports.drawPipeline();
+      console.log("applied changes for " + actionId);
+      //exports.drawPipeline(); -- don't want to do this as it collapses the step listing.
+      //TODO: make it just update the step name in the view 
   }
+  
   //TODO: need to render out here.
   //printDebugScript();
 }
