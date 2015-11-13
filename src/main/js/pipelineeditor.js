@@ -1,3 +1,7 @@
+/**
+ * Jenkins pipeline editor adjunct and entry point.
+ */
+ 
 var $ = require('bootstrap-detached').getBootstrap();
 var h = require('./editor');
 var Belay = require('./svg'); 
@@ -42,6 +46,11 @@ function showEditor($, confEditor, pageBody, script, json) {
     window.location.hash = "";
     Belay.off();
   });
+  
+  $(window).resize(function(){            
+    h.autoJoin();
+  });
+
   
   console.log(script.val());
   console.log(json.val());

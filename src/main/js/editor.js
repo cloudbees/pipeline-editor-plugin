@@ -1,3 +1,7 @@
+/**
+ * Pipeline editor main module. Dreaming of Alaskan pipelines 2 eva. 
+ */
+
 
 var $ = require('bootstrap-detached').getBootstrap();
 var Belay = require('./svg'); 
@@ -64,7 +68,7 @@ var pipeline =
 
 
 
-
+exports.autoJoin = autoJoin;
 
 /**
  * Draw the pipeline visualisation based on the pipeline data, including svg.
@@ -260,6 +264,8 @@ function autoJoin() {
       }
     }    
 }
+
+
 
 /**
  * Draw the connecting lines using SVG and the div ids. 

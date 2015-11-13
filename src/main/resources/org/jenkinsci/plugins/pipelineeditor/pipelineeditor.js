@@ -883,6 +883,10 @@ exports.setDefaultTimeout = function(millis) {
     defaultTimeout = millis;
 }
 },{}],5:[function(require,module,exports){
+/**
+ * Pipeline editor main module. Dreaming of Alaskan pipelines 2 eva. 
+ */
+
 
 var $ = require('jenkins-js-modules').require('bootstrap:bootstrap3').getBootstrap();
 var Belay = require('./svg'); 
@@ -949,7 +953,7 @@ var pipeline =
 
 
 
-
+exports.autoJoin = autoJoin;
 
 /**
  * Draw the pipeline visualisation based on the pipeline data, including svg.
@@ -1146,6 +1150,8 @@ function autoJoin() {
     }    
 }
 
+
+
 /**
  * Draw the connecting lines using SVG and the div ids. 
  */
@@ -1244,6 +1250,10 @@ require('jenkins-js-modules')
     .import('bootstrap:bootstrap3')
     .onFulfilled(function() {
 
+/**
+ * Jenkins pipeline editor adjunct and entry point.
+ */
+ 
 var $ = require('jenkins-js-modules').require('bootstrap:bootstrap3').getBootstrap();
 var h = require('./editor');
 var Belay = require('./svg'); 
@@ -1288,6 +1298,11 @@ function showEditor($, confEditor, pageBody, script, json) {
     window.location.hash = "";
     Belay.off();
   });
+  
+  $(window).resize(function(){            
+    h.autoJoin();
+  });
+
   
   console.log(script.val());
   console.log(json.val());
@@ -1500,6 +1515,10 @@ function renderTemplate(template, values, moreValues) {
 }
 
 },{"jenkins-js-modules":1}],8:[function(require,module,exports){
+/**
+ * Use SVG to draw lines between adjacent divs. 
+ */ 
+
 var $ = require('jenkins-js-modules').require('bootstrap:bootstrap3').getBootstrap();
 
 var settings = {

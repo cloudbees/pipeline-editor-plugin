@@ -1,3 +1,7 @@
+/**
+ * Use SVG to draw lines between adjacent divs. 
+ */ 
+
 var $ = require('bootstrap-detached').getBootstrap();
 
 var settings = {
