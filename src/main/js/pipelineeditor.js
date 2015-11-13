@@ -8,22 +8,18 @@ var Belay = require('./svg');
 
 window.mic = $; //For debugging!
 
+/** Hook in to the edit button on the regular jenkins job config screen */
 $(document).ready(function () {    
-
   var script = $("input[name='_.script']");
   var json = $("input[name='_.json']");
   var confEditor = $('#page-body > div');
   var pageBody = $('#page-body');
-  
-  
   if ("#pipeline-editor" === window.location.hash) {
     showEditor($, confEditor, pageBody, script, json);
   }
-  
   $('#edit-pipeline').click(function() {
     showEditor($, confEditor, pageBody, script, json);
   });
-
 });
 
 /**
@@ -47,10 +43,7 @@ function showEditor($, confEditor, pageBody, script, json) {
     Belay.off();
   });
   
-  $(window).resize(function(){            
-    h.autoJoin();
-  });
-
+  reJoinOnResize();
   
   console.log(script.val());
   console.log(json.val());
@@ -98,4 +91,14 @@ function fixFlowCSS() {
   return '<style>.stage-listing > .row > .col-md-3:nth-child(4n+1) {' +
     'clear: both;' +
   '}</style>;'
+}
+
+/**
+ * As svg lines are overlayed based on positions of divs, when the divs move around
+ * the lines need to be redrawn.
+ */
+function reJoinOnResize() {
+  $(window).resize(function(){            
+    h.autoJoin();
+  });
 }

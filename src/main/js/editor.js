@@ -175,7 +175,6 @@ function openEditor(actionId) {
   var editorHtml = editorModule.renderEditor(stepInfo, actionId); 
   var editPanel = $('#editor-panel');
   editPanel.empty();
-//  var saveButton = '<span id="currently-editing" data-action-id="' + actionId + '"></span>';
   editPanel.append("<form id='currently-editing' data-action-id='" + actionId + "'>" + editorHtml + "</form>");    
   
   var stageInfo = pipeline[coordinates[0]];
