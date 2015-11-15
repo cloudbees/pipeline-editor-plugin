@@ -892,66 +892,6 @@ var $ = require('jenkins-js-modules').require('bootstrap:bootstrap3').getBootstr
 var Belay = require('./svg'); 
 var editors = require('./steps/builtin');
 
-var pipeline = 
-[
-  {
-    "name" : "Checkout",
-    "steps" : [
-      {"type": "git", "name" : "Clone webapp", "url" : "git@github.com/thing/awesome.git"},
-    ]    
-  },
-  
-  
-  {
-    "name" : "Prepare Test Database",
-    "steps" : [
-      {"type": "sh", "name" : "Install Postgress", "command" : "install_postgres"},
-      {"type": "sh", "name" : "Initialise DB", "command" : "pgsql data/init.sql"},
-    ]    
-  },
-  
-  
- 
-  {
-    "name" : "Prepare",
-    "streams" : [
-      {"name" : "Ruby", "steps" : [
-        {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"},
-        {"type": "stash", "name" : "Stash compiled app", "includes": "/app", "excludes" : ""} 
-      ]},
-      {"name" : "Python","steps" : [
-        {"type": "sh", "name" : "Yeah", "command" : "exit()"},
-        
-      ]}
-    ]    
-  },
-  
-  {
-    "name" : "Stage and Test",
-    "steps" : []    
-  },
-  
-  {
-    "name" : "Approve",
-    "steps" : [],
-    "type" : "input"    
-  },
-  
-  {
-    "name" : "Deploy",
-    "steps" : [],
-    "node" : "devops-production"    
-  },
-  
-  {
-    "name" : "Party",
-    "steps" : [{"type": "rick", "name" : "Awesome" } ]    
-  }
-
-  
-]
-
-
 
 exports.autoJoin = autoJoin;
 
@@ -959,7 +899,7 @@ exports.autoJoin = autoJoin;
  * Draw the pipeline visualisation based on the pipeline data, including svg.
  * Current pipeline is stored in the "pipeline" variable assumed to be in scope. 
  */
-exports.drawPipeline = function () {  
+exports.drawPipeline = function (pipeline) {  
   pRow = $('#pipeline-row');
   pRow.empty();
   
@@ -985,28 +925,28 @@ exports.drawPipeline = function () {
             
     }
   }
-  autoJoinDelay();  
-  addAutoJoinHooks();
+  autoJoinDelay(pipeline);  
+  addAutoJoinHooks(pipeline);
 
   $(".open-editor").click(function(){
-    openEditor($( this ).attr('data-action-id'));
+    openEditor(pipeline, $( this ).attr('data-action-id'));
   });
 
 }
 
 /** We will want to redraw the joins in some cases */
-function addAutoJoinHooks() {
+function addAutoJoinHooks(pipeline) {
   $(".autojoin").click(function() {
-    autoJoinDelay();
+    autoJoinDelay(pipeline);
   });
 
 }
 
 /** apply changes to any form-control elements */
-function addApplyChangesHooks() {
+function addApplyChangesHooks(pipeline) {
    $(".form-control").change(function() {
      var actionId = $("#currently-editing").attr('data-action-id');     
-     handleEditorSave(actionId);
+     handleEditorSave(pipeline, actionId);
    });   
 }
 
@@ -1051,7 +991,7 @@ function stepListing(stageId, steps)  {
 /**
  * Taking the actionId (co-ordinates), find the step info and load it up.
  */
-function openEditor(actionId) {
+function openEditor(pipeline, actionId) {
   var coordinates = actionIdToStep(actionId);
 
   var stepInfo = fetchStep(coordinates, pipeline);
@@ -1065,10 +1005,10 @@ function openEditor(actionId) {
   var stageInfo = pipeline[coordinates[0]];
   $('#editor-heading').text(stageInfo['name'] + " / " + stepInfo['name']);
   
-  addApplyChangesHooks();
+  addApplyChangesHooks(pipeline);
 }
 
-function handleEditorSave(actionId) {
+function handleEditorSave(pipeline, actionId) {
   var currentStep = fetchStep(actionIdToStep(actionId), pipeline);
   var edModule = editors.lookupEditor(currentStep['type']);
   if (edModule.readChanges(actionId, currentStep)) {
@@ -1127,7 +1067,7 @@ function fetchStep(coordinates, pipelineData) {
   *      \[]/
   *  
   */
-function autoJoin() {  
+function autoJoin(pipeline) {  
     Belay.off();
     var previousPils = [];    
     for (var i=0; i < pipeline.length; i++) {
@@ -1164,10 +1104,10 @@ function joinWith(pilList, currentId) {
 /**
  * Wait until the steps are expanded before joining them together again
  */
-function autoJoinDelay() {
+function autoJoinDelay(pipeline) {
   Belay.off();
   setTimeout(function() {
-    autoJoin();
+    autoJoin(pipeline);
   }, 500);
 }
 
@@ -1294,13 +1234,17 @@ function showEditor($, confEditor, pageBody, script, json) {
     Belay.off();
   });
   
-  reJoinOnResize();
+  var pipeline = samplePipeline;
+  
+  reJoinOnResize(pipeline);
+  
+  JSON.parse("{}");
   
   console.log(script.val());
   console.log(json.val());
   
   h.initSVG();
-  h.drawPipeline();
+  h.drawPipeline(pipeline);
    
   script.val("yeah");
 
@@ -1348,11 +1292,71 @@ function fixFlowCSS() {
  * As svg lines are overlayed based on positions of divs, when the divs move around
  * the lines need to be redrawn.
  */
-function reJoinOnResize() {
+function reJoinOnResize(pipeline) {
   $(window).resize(function(){            
-    h.autoJoin();
+    h.autoJoin(pipeline);
   });
 }
+
+
+var samplePipeline = 
+[
+  {
+    "name" : "Checkout",
+    "steps" : [
+      {"type": "git", "name" : "Clone webapp", "url" : "git@github.com/thing/awesome.git"},
+    ]    
+  },
+  
+  
+  {
+    "name" : "Prepare Test Database",
+    "steps" : [
+      {"type": "sh", "name" : "Install Postgress", "command" : "install_postgres"},
+      {"type": "sh", "name" : "Initialise DB", "command" : "pgsql data/init.sql"},
+    ]    
+  },
+  
+  
+ 
+  {
+    "name" : "Prepare",
+    "streams" : [
+      {"name" : "Ruby", "steps" : [
+        {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"},
+        {"type": "stash", "name" : "Stash compiled app", "includes": "/app", "excludes" : ""} 
+      ]},
+      {"name" : "Python","steps" : [
+        {"type": "sh", "name" : "Yeah", "command" : "exit()"},
+        
+      ]}
+    ]    
+  },
+  
+  {
+    "name" : "Stage and Test",
+    "steps" : []    
+  },
+  
+  {
+    "name" : "Approve",
+    "steps" : [],
+    "type" : "input"    
+  },
+  
+  {
+    "name" : "Deploy",
+    "steps" : [],
+    "node" : "devops-production"    
+  },
+  
+  {
+    "name" : "Party",
+    "steps" : [{"type": "rick", "name" : "Awesome" } ]    
+  }
+
+  
+]
 
 		require('jenkins-js-modules').export(undefined, 'pipelineeditor', {});
     });
