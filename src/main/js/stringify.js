@@ -1,17 +1,15 @@
 /**
  * Awful hack to get around JSONifying things with Prototype taking over wrong. ugh. Prototype is the worst.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
- * Bootstrap is bad and you should feel bad.
+ * Prototype is bad and you should feel bad.
+ * Prototype is bad and you should feel bad.
+ * Prototype is bad and you should feel bad.
+ * Prototype is bad and you should feel bad.
+ * Prototype is bad and you should feel bad.
+ * Prototype is bad and you should feel bad.
+ * Prototype is bad and you should feel bad.
+ * Prototype is bad and you should feel bad.
+ * Prototype is bad and you should feel bad.
+ * Prototype is bad and you should feel bad. 
  */
 exports.writeJSON = function(o) {
 	if(Array.prototype.toJSON) { // Prototype f's this up something bad
