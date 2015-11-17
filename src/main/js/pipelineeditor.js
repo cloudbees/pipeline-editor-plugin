@@ -44,8 +44,11 @@ function showEditor($, confEditor, pageBody, script, json) {
   });
   
   var pipeline = samplePipeline;
-  var pipelineParsed = JSON.parse(json.val());
-  pipeline=pipelineParsed;
+  if (json.val() !== "") {
+    var pipelineParsed = JSON.parse(json.val());
+    pipeline=pipelineParsed;
+  }
+  
 
   h.initSVG();
   h.drawPipeline(pipeline, {"script" : script, "json" : json });
