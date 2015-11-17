@@ -44,17 +44,14 @@ function showEditor($, confEditor, pageBody, script, json) {
   });
   
   var pipeline = samplePipeline;
-  
-  reJoinOnResize(pipeline);
-  
-  console.log(script.val());
-  console.log(json.val());
-  
-  h.initSVG();
-  h.drawPipeline(pipeline);
-   
-  script.val("yeah");
+  var pipelineParsed = JSON.parse(json.val());
+  pipeline=pipelineParsed;
 
+  h.initSVG();
+  h.drawPipeline(pipeline, {"script" : script, "json" : json });
+  reJoinOnResize(pipeline);
+   
+ 
 }
 
 
@@ -134,7 +131,7 @@ var samplePipeline =
         {"type": "stash", "name" : "Stash compiled app", "includes": "/app", "excludes" : ""} 
       ]},
       {"name" : "Python","steps" : [
-        {"type": "sh", "name" : "Yeah", "command" : "exit()"},
+        {"type": "sh", "name" : "Yeah", "command" : "exit()"}
         
       ]}
     ]    

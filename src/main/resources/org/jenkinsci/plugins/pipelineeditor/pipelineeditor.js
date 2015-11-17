@@ -891,6 +891,7 @@ exports.setDefaultTimeout = function(millis) {
 var $ = require('jenkins-js-modules').require('bootstrap:bootstrap3').getBootstrap();
 var Belay = require('./svg'); 
 var editors = require('./steps/builtin');
+var stringify = require('./stringify');
 
 
 exports.autoJoin = autoJoin;
@@ -898,8 +899,9 @@ exports.autoJoin = autoJoin;
 /**
  * Draw the pipeline visualisation based on the pipeline data, including svg.
  * Current pipeline is stored in the "pipeline" variable assumed to be in scope. 
+ * Also requires formFields of script and json
  */
-exports.drawPipeline = function (pipeline) {  
+exports.drawPipeline = function (pipeline, formFields) {  
   pRow = $('#pipeline-row');
   pRow.empty();
   
@@ -929,7 +931,7 @@ exports.drawPipeline = function (pipeline) {
   addAutoJoinHooks(pipeline);
 
   $(".open-editor").click(function(){
-    openEditor(pipeline, $( this ).attr('data-action-id'));
+    openEditor(pipeline, $( this ).attr('data-action-id'), formFields);
   });
 
 }
@@ -943,11 +945,19 @@ function addAutoJoinHooks(pipeline) {
 }
 
 /** apply changes to any form-control elements */
-function addApplyChangesHooks(pipeline) {
+function addApplyChangesHooks(pipeline, formFields) {
    $(".form-control").change(function() {
      var actionId = $("#currently-editing").attr('data-action-id');     
-     handleEditorSave(pipeline, actionId);
+     handleEditorSave(pipeline, actionId, formFields);
    });   
+}
+
+/**
+ * For the given pipeline, put the values in the script and json form fields.
+ */ 
+function writeOutChanges(pipeline, formFields) {
+    formFields.script.val(toWorkflow(pipeline, editors.listEditors()));
+    formFields.json.val(stringify.writeJSON(pipeline));
 }
 
 /**
@@ -991,7 +1001,7 @@ function stepListing(stageId, steps)  {
 /**
  * Taking the actionId (co-ordinates), find the step info and load it up.
  */
-function openEditor(pipeline, actionId) {
+function openEditor(pipeline, actionId, formFields) {
   var coordinates = actionIdToStep(actionId);
 
   var stepInfo = fetchStep(coordinates, pipeline);
@@ -1005,17 +1015,22 @@ function openEditor(pipeline, actionId) {
   var stageInfo = pipeline[coordinates[0]];
   $('#editor-heading').text(stageInfo['name'] + " / " + stepInfo['name']);
   
-  addApplyChangesHooks(pipeline);
+  addApplyChangesHooks(pipeline, formFields);
 }
 
-function handleEditorSave(pipeline, actionId) {
+/**
+ * When a change is made to a step config, this will be called to apply the changes.
+ */
+function handleEditorSave(pipeline, actionId, formFields) {
   var currentStep = fetchStep(actionIdToStep(actionId), pipeline);
   var edModule = editors.lookupEditor(currentStep['type']);
   if (edModule.readChanges(actionId, currentStep)) {
       console.log("applied changes for " + actionId);
       //exports.drawPipeline(); -- don't want to do this as it collapses the step listing.
       //TODO: make it just update the step name in the view 
+      writeOutChanges(pipeline, formFields);
   }
+  
   
   //TODO: need to render out here.
   //printDebugScript();
@@ -1175,16 +1190,7 @@ function toWorkflow(pipelineData, modules) {
   return "node {" + inner + "\n}";  
 }
 
-
-
-
-exports.yeah = function() {
-  console.log('hey222');
-  var confEditor = $('#page-body > div');
-  confEditor.hide();
-};
-
-},{"./steps/builtin":7,"./svg":8,"jenkins-js-modules":1}],6:[function(require,module,exports){
+},{"./steps/builtin":7,"./stringify":8,"./svg":9,"jenkins-js-modules":1}],6:[function(require,module,exports){
 require('jenkins-js-modules')
     .import('bootstrap:bootstrap3')
     .onFulfilled(function() {
@@ -1235,19 +1241,14 @@ function showEditor($, confEditor, pageBody, script, json) {
   });
   
   var pipeline = samplePipeline;
-  
-  reJoinOnResize(pipeline);
-  
-  JSON.parse("{}");
-  
-  console.log(script.val());
-  console.log(json.val());
-  
-  h.initSVG();
-  h.drawPipeline(pipeline);
-   
-  script.val("yeah");
+  var pipelineParsed = JSON.parse(json.val());
+  pipeline=pipelineParsed;
 
+  h.initSVG();
+  h.drawPipeline(pipeline, {"script" : script, "json" : json });
+  reJoinOnResize(pipeline);
+   
+ 
 }
 
 
@@ -1327,7 +1328,7 @@ var samplePipeline =
         {"type": "stash", "name" : "Stash compiled app", "includes": "/app", "excludes" : ""} 
       ]},
       {"name" : "Python","steps" : [
-        {"type": "sh", "name" : "Yeah", "command" : "exit()"},
+        {"type": "sh", "name" : "Yeah", "command" : "exit()"}
         
       ]}
     ]    
@@ -1361,7 +1362,7 @@ var samplePipeline =
 		require('jenkins-js-modules').export(undefined, 'pipelineeditor', {});
     });
 
-},{"./editor":5,"./svg":8,"jenkins-js-modules":1}],7:[function(require,module,exports){
+},{"./editor":5,"./svg":9,"jenkins-js-modules":1}],7:[function(require,module,exports){
 /**
  * Editor modules for the build in steps.
  */
@@ -1521,6 +1522,58 @@ function renderTemplate(template, values, moreValues) {
 }
 
 },{"jenkins-js-modules":1}],8:[function(require,module,exports){
+/**
+ * Awful hack to get around JSONifying things with Prototype taking over wrong. ugh. Prototype is the worst.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ * Bootstrap is bad and you should feel bad.
+ */
+exports.writeJSON = function(o) {
+	if(Array.prototype.toJSON) { // Prototype f's this up something bad
+		var protoJSON = {
+			a: Array.prototype.toJSON,
+			o: Object.prototype.toJSON,
+			h: Hash.prototype.toJSON,
+			s: String.prototype.toJSON
+		};
+	    try {
+	        delete Array.prototype.toJSON;
+  	    	delete Object.prototype.toJSON;
+	        delete Hash.prototype.toJSON;
+	        delete String.prototype.toJSON;
+	        
+	    	return JSON.stringify(o);
+	    }
+	    finally {
+	    	if(protoJSON.a) {
+	    		Array.prototype.toJSON = protoJSON.a;
+	    	}
+	    	if(protoJSON.o) {
+	    		Object.prototype.toJSON = protoJSON.o;
+	    	}
+	    	if(protoJSON.h) {
+	    		Hash.prototype.toJSON = protoJSON.h;
+	    	}
+	    	if(protoJSON.s) {
+	    		String.prototype.toJSON = protoJSON.s;
+	    	}
+	    }
+	}
+	else {
+		return JSON.stringify(o);
+	}
+};
+
+},{}],9:[function(require,module,exports){
 /**
  * Use SVG to draw lines between adjacent divs. 
  */ 

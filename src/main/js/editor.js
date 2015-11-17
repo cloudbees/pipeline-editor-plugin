@@ -6,6 +6,7 @@
 var $ = require('bootstrap-detached').getBootstrap();
 var Belay = require('./svg'); 
 var editors = require('./steps/builtin');
+var stringify = require('./stringify');
 
 
 exports.autoJoin = autoJoin;
@@ -13,8 +14,9 @@ exports.autoJoin = autoJoin;
 /**
  * Draw the pipeline visualisation based on the pipeline data, including svg.
  * Current pipeline is stored in the "pipeline" variable assumed to be in scope. 
+ * Also requires formFields of script and json
  */
-exports.drawPipeline = function (pipeline) {  
+exports.drawPipeline = function (pipeline, formFields) {  
   pRow = $('#pipeline-row');
   pRow.empty();
   
@@ -44,7 +46,7 @@ exports.drawPipeline = function (pipeline) {
   addAutoJoinHooks(pipeline);
 
   $(".open-editor").click(function(){
-    openEditor(pipeline, $( this ).attr('data-action-id'));
+    openEditor(pipeline, $( this ).attr('data-action-id'), formFields);
   });
 
 }
@@ -58,11 +60,19 @@ function addAutoJoinHooks(pipeline) {
 }
 
 /** apply changes to any form-control elements */
-function addApplyChangesHooks(pipeline) {
+function addApplyChangesHooks(pipeline, formFields) {
    $(".form-control").change(function() {
      var actionId = $("#currently-editing").attr('data-action-id');     
-     handleEditorSave(pipeline, actionId);
+     handleEditorSave(pipeline, actionId, formFields);
    });   
+}
+
+/**
+ * For the given pipeline, put the values in the script and json form fields.
+ */ 
+function writeOutChanges(pipeline, formFields) {
+    formFields.script.val(toWorkflow(pipeline, editors.listEditors()));
+    formFields.json.val(stringify.writeJSON(pipeline));
 }
 
 /**
@@ -106,7 +116,7 @@ function stepListing(stageId, steps)  {
 /**
  * Taking the actionId (co-ordinates), find the step info and load it up.
  */
-function openEditor(pipeline, actionId) {
+function openEditor(pipeline, actionId, formFields) {
   var coordinates = actionIdToStep(actionId);
 
   var stepInfo = fetchStep(coordinates, pipeline);
@@ -120,17 +130,22 @@ function openEditor(pipeline, actionId) {
   var stageInfo = pipeline[coordinates[0]];
   $('#editor-heading').text(stageInfo['name'] + " / " + stepInfo['name']);
   
-  addApplyChangesHooks(pipeline);
+  addApplyChangesHooks(pipeline, formFields);
 }
 
-function handleEditorSave(pipeline, actionId) {
+/**
+ * When a change is made to a step config, this will be called to apply the changes.
+ */
+function handleEditorSave(pipeline, actionId, formFields) {
   var currentStep = fetchStep(actionIdToStep(actionId), pipeline);
   var edModule = editors.lookupEditor(currentStep['type']);
   if (edModule.readChanges(actionId, currentStep)) {
       console.log("applied changes for " + actionId);
       //exports.drawPipeline(); -- don't want to do this as it collapses the step listing.
       //TODO: make it just update the step name in the view 
+      writeOutChanges(pipeline, formFields);
   }
+  
   
   //TODO: need to render out here.
   //printDebugScript();
