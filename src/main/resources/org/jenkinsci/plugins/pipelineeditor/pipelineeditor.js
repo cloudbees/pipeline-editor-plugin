@@ -902,7 +902,7 @@ exports.autoJoin = autoJoin;
  * Also requires formFields of script and json
  */
 exports.drawPipeline = function (pipeline, formFields) {  
-  pRow = $('#pipeline-row');
+  var pRow = $('#pipeline-row');
   pRow.empty();
   
 
@@ -912,17 +912,15 @@ exports.drawPipeline = function (pipeline, formFields) {
     var currentId = "stage-" + i;      
     //append a block if non parallel
     if (!isParallelStage(stage)) {      
-      stageElement = normalStageBlock(currentId, stage);
-      pRow.append(stageElement);
+      pRow.append(normalStageBlock(currentId, stage));
     } else {      
-      subStages = "";
-      var currentPils = [];
-      for (j = 0; j < stage.streams.length; j++) {
+      var subStages = "";
+      for (var j = 0; j < stage.streams.length; j++) {
         var subStage = stage.streams[j];
         var subStageId = currentId + "-" + j;                
-        subStages += parStageBlock(stage['name'], subStageId, subStage);
+        subStages += parStageBlock(stage.name, subStageId, subStage);
       }      
-      stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + '</ul></div>';
+      var stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + '</ul></div>';
       pRow.append(stageElement);
             
     }
@@ -934,7 +932,7 @@ exports.drawPipeline = function (pipeline, formFields) {
     openEditor(pipeline, $( this ).attr('data-action-id'), formFields);
   });
 
-}
+};
 
 /** We will want to redraw the joins in some cases */
 function addAutoJoinHooks(pipeline) {
@@ -964,21 +962,21 @@ function writeOutChanges(pipeline, formFields) {
  * parallel stages are an item in an ordered list.
  */
 function parStageBlock(stageName, subStageId, subStage) {
-  var subStageName = stageName + ": " +  subStage['name'];
+  var subStageName = stageName + ": " +  subStage.name;
   return '<li><div id="' + subStageId + '"  class="panel panel-default"><div class="panel-heading">' +
                   '<a role="button" class="autojoin" data-toggle="collapse" href="#' + subStageId + '_collapse">'  + 
                   subStageName + '</a>' + '<div class="collapse" id="' + subStageId + '_collapse">' +
-                  stepListing(subStageId, subStage.steps) + '</div>'
-                  + '</div></div></li>';
+                  stepListing(subStageId, subStage.steps) + '</div>' +
+                  '</div></div></li>';
 }
  
 /**
  * A non parallel stage. Parallel stages are a pipeline editor construct, not an inherent workflow property.
  */
 function normalStageBlock(currentId, stage) {
-  return '<div class="col-md-3"><div id="' + currentId + '" class="panel panel-default"><div class="panel-heading">' 
-                + '<a role="button" class="autojoin" data-toggle="collapse" href="#' + currentId + '_collapse">' + 
-                stage['name'] + '</a>' + '<div class="collapse" id="' + currentId + '_collapse">' +
+  return '<div class="col-md-3"><div id="' + currentId + '" class="panel panel-default"><div class="panel-heading">' +
+                '<a role="button" class="autojoin" data-toggle="collapse" href="#' + currentId + '_collapse">' + 
+                stage.name + '</a>' + '<div class="collapse" id="' + currentId + '_collapse">' +
                 stepListing(currentId, stage.steps) + '</div>' + '</div></div></div>';
 }
 
@@ -989,12 +987,12 @@ function stepListing(stageId, steps)  {
   if (!steps) {
     return '';
   } else {
-    buttons = '&nbsp;';
+    var buttons = '&nbsp;';
     for (var j=0; j < steps.length; ++j) {
-        actionId = stageId + "-" + j;                
-        buttons += '<button class="list-group-item open-editor" data-action-id="' + actionId + '">' + steps[j]['name'] +'</a>';      
+        var actionId = stageId + "-" + j;                
+        buttons += '<button class="list-group-item open-editor" data-action-id="' + actionId + '">' + steps[j].name +'</a>';      
     }  
-    return '<div class="list-group">' + buttons + '</div>'    
+    return '<div class="list-group">' + buttons + '</div>';    
   }
 }
 
@@ -1005,7 +1003,7 @@ function openEditor(pipeline, actionId, formFields) {
   var coordinates = actionIdToStep(actionId);
 
   var stepInfo = fetchStep(coordinates, pipeline);
-  var editorModule = editors.lookupEditor(stepInfo['type']);
+  var editorModule = editors.lookupEditor(stepInfo.type);
    
   var editorHtml = editorModule.renderEditor(stepInfo, actionId); 
   var editPanel = $('#editor-panel');
@@ -1013,7 +1011,7 @@ function openEditor(pipeline, actionId, formFields) {
   editPanel.append("<form id='currently-editing' data-action-id='" + actionId + "'>" + editorHtml + "</form>");    
   
   var stageInfo = pipeline[coordinates[0]];
-  $('#editor-heading').text(stageInfo['name'] + " / " + stepInfo['name']);
+  $('#editor-heading').text(stageInfo.name + " / " + stepInfo.name);
   
   addApplyChangesHooks(pipeline, formFields);
 }
@@ -1023,17 +1021,13 @@ function openEditor(pipeline, actionId, formFields) {
  */
 function handleEditorSave(pipeline, actionId, formFields) {
   var currentStep = fetchStep(actionIdToStep(actionId), pipeline);
-  var edModule = editors.lookupEditor(currentStep['type']);
+  var edModule = editors.lookupEditor(currentStep.type);
   if (edModule.readChanges(actionId, currentStep)) {
       console.log("applied changes for " + actionId);
       //exports.drawPipeline(); -- don't want to do this as it collapses the step listing.
       //TODO: make it just update the step name in the view 
       writeOutChanges(pipeline, formFields);
   }
-  
-  
-  //TODO: need to render out here.
-  //printDebugScript();
 }
 
 /**
@@ -1060,10 +1054,10 @@ function actionIdToStep(actionId) {
  * Take 2 or 3 indexes and find the step out of the pipelineData.
  */
 function fetchStep(coordinates, pipelineData) {
-   if (coordinates.length == 2) {
-     return pipelineData[coordinates[0]]['steps'][coordinates[1]];
+   if (coordinates.length === 2) {
+     return pipelineData[coordinates[0]].steps[coordinates[1]];
    } else {
-     return pipelineData[coordinates[0]]['streams'][coordinates[1]]['steps'][coordinates[2]];
+     return pipelineData[coordinates[0]].streams[coordinates[1]].steps[coordinates[2]];
    }
 }
 
@@ -1110,7 +1104,7 @@ function autoJoin(pipeline) {
  * Draw the connecting lines using SVG and the div ids. 
  */
 function joinWith(pilList, currentId) {
-  for (i = 0; i < pilList.length; i++) {
+  for (var i = 0; i < pilList.length; i++) {
     Belay.on("#" + pilList[i], "#" + currentId);
   }
 }
@@ -1132,7 +1126,7 @@ function autoJoinDelay(pipeline) {
 exports.initSVG = function() {
   Belay.init({strokeWidth: 2});
   Belay.set('strokeColor', '#999');
-}
+};
 
 
 /**
@@ -1156,12 +1150,12 @@ function toWorkflow(pipelineData, modules) {
     var par = "\n    parallel (";  
     for (var i = 0; i < streamData.length; i++) {
         var stream = streamData[i];
-        par += '\n     "' + stream['name'] + '" : {';
+        par += '\n     "' + stream.name + '" : {';
         par += toSteps(stream.steps, modules);      
-        if (i == (streamData.length - 1)) {
-            par += "\n     }"
+        if (i === (streamData.length - 1)) {
+            par += "\n     }";
         } else {
-            par += "\n     },"
+            par += "\n     },";
         }
     }
     return par + "\n    )"; 
@@ -1171,16 +1165,16 @@ function toWorkflow(pipelineData, modules) {
     var steps = "";
     for (var i = 0; i < stepData.length; i++) {
       var stepInfo = stepData[i];  
-      var mod  = modules[stepInfo['type']];
+      var mod  = modules[stepInfo.type];
       steps += "\n        " + mod.generateScript(stepInfo);
     }
     return steps;
   }
 
   var inner = "";
-  for (i = 0; i < pipelineData.length; i++) {
+  for (var i = 0; i < pipelineData.length; i++) {
     var stage = pipelineData[i];
-    inner += '\n    stage name: "' + stage['name'] + '"';
+    inner += '\n    stage name: "' + stage.name + '"';
     if (stage.streams) {      
       inner += toStreams(stage.streams, modules);
     } else {
@@ -1289,7 +1283,7 @@ function detailContainer() {
 function fixFlowCSS() {
   return '<style>.stage-listing > .row > .col-md-3:nth-child(4n+1) {' +
     'clear: both;' +
-  '}</style>;'
+  '}</style>';
 }
 
 /**
@@ -1360,7 +1354,7 @@ var samplePipeline =
   }
 
   
-]
+];
 
 		require('jenkins-js-modules').export(undefined, 'pipelineeditor', {});
     });
@@ -1395,13 +1389,13 @@ var ShellModule = {
     readChanges : function(actionId, currentStep) {
       // read the changes from the form and apply them. 
       // if it all checks out, return true, otherwise don't apply them, and return false. 
-      currentStep["name"] = $('#' + actionId + "_stepName").val();
-      currentStep["command"] = $('#' + actionId + "_command").val();
+      currentStep.name = $('#' + actionId + "_stepName").val();
+      currentStep.command = $('#' + actionId + "_command").val();
       return true; //this will cause pipeline view to be re-rendered.
     },
     
     generateScript : function(stepInfo){
-      return 'sh "' + stepInfo['command'] + '"';
+      return 'sh "' + stepInfo.command + '"';
     },
 };
 
@@ -1425,13 +1419,13 @@ var GitModule = {
     readChanges : function(actionId, currentStep) {
       // read the changes from the form and apply them. 
       // if it all checks out, return true, otherwise don't apply them, and return false. 
-      currentStep["name"] = $('#' + actionId + "_stepName").val();
-      currentStep["url"] = $('#' + actionId + "_url").val();
+      currentStep.name = $('#' + actionId + "_stepName").val();
+      currentStep.url = $('#' + actionId + "_url").val();
       return true; //this will cause pipeline view to be re-rendered.
     },
     
     generateScript : function(stepInfo){
-      return 'git ' + stepInfo['url'];
+      return 'git ' + stepInfo.url;
     },
 };
 
@@ -1458,14 +1452,14 @@ var StashModule = {
     readChanges : function(actionId, currentStep) {
       // read the changes from the form and apply them. 
       // if it all checks out, return true, otherwise don't apply them, and return false. 
-      currentStep["name"] = $('#' + actionId + "_name").val();
-      currentStep["includes"] = $('#' + actionId + "_includes").val();
-      currentStep["excludes"] = $('#' + actionId + "_excludes").val();
+      currentStep.name = $('#' + actionId + "_name").val();
+      currentStep.includes = $('#' + actionId + "_includes").val();
+      currentStep.excludes = $('#' + actionId + "_excludes").val();
       return true; //this will cause pipeline view to be re-rendered.
     },
     
     generateScript : function(stepInfo){
-      return 'stash name: "' + stepInfo['name'] + '", includes: "' + stepInfo['includes'] + '", excludes: "' + stepInfo['excludes'] + '"';
+      return 'stash name: "' + stepInfo.name + '", includes: "' + stepInfo.includes + '", excludes: "' + stepInfo.excludes + '"';
     },
 };
 
@@ -1481,18 +1475,20 @@ var RickModule = {
     },
     
     readChanges : function(actionId, currentStep) {
+      console.log("current step for rick is" + currentStep + actionId);
       // read the changes from the form and apply them. 
       // if it all checks out, return true, otherwise don't apply them, and return false. 
       return true; //this will cause pipeline view to be re-rendered.
     },
     
     generateScript : function(stepInfo){
+      console.log(stepInfo);
       return '/* you have been rick rolled */';
     },
 };
 
 
-editorModules = {
+var editorModules = {
   "sh" : ShellModule,
   "git" : GitModule,
   "stash" : StashModule,
@@ -1501,11 +1497,11 @@ editorModules = {
 
 exports.lookupEditor = function(type) {
   return editorModules[type];
-}
+};
 
 exports.listEditors = function() {
   return editorModules;
-}
+};
 
 
 /**
@@ -1513,6 +1509,7 @@ exports.listEditors = function() {
   */
 function renderTemplate(template, values, moreValues) {
   var result = template;
+  var key;
   for (key in values) {    
     result = result.split("{{" + key + "}}").join(values[key]);    
   }
@@ -1588,7 +1585,7 @@ var settings = {
                   fill              : 'none',
                   animate           : true,
                   animationDirection: 'right',
-                  animationDuration : .3
+                  animationDuration : 0.3
                };
 
 
@@ -1599,22 +1596,22 @@ exports.init = function(initObj) {
          settings[index] = value;
       });
     }
-}
+};
 
 exports.set = function(prop, val){
   //TODO validate
   settings[prop] = val;
-}
+};
 
 exports.on = function(el1, el2){
   var $el1 = $(el1);
   var $el2 = $(el2);
   if ($el1.length && $el2.length) {
-    var svgheight
-        ,p
-        ,svgleft
-        ,svgtop
-        ,svgwidth
+    var svgheight,
+        p,
+        svgleft,
+        svgtop,
+        svgwidth;
 
     var el1pos = $(el1).offset();
     var el2pos = $(el2).offset();
@@ -1623,12 +1620,11 @@ exports.on = function(el1, el2){
     var el1W = $(el1).outerWidth();
 
     var el2H = $(el2).outerHeight();
-    var el2W = $(el2).outerWidth();
 
     svgleft = Math.round(el1pos.left + el1W);
     svgwidth = Math.round(el2pos.left - svgleft);
 
-    var curvinessFactor, cpt;
+    var cpt;
 
     ////Determine which is higher/lower
     if( (el2pos.top+(el2H/2)) <= ( el1pos.top+(el1H/2))){
@@ -1646,7 +1642,7 @@ exports.on = function(el1, el2){
     }
     
     //ugly one-liner
-    $ropebag = $('#ropebag').length ? $('#ropebag') : $('body').append($( "<div id='ropebag' />" )).find('#ropebag');
+    var $ropebag = $('#ropebag').length ? $('#ropebag') : $('body').append($( "<div id='ropebag' />" )).find('#ropebag');
 
     var svgnode = document.createElementNS('http://www.w3.org/2000/svg','svg');
     var newpath = document.createElementNS('http://www.w3.org/2000/svg',"path");
@@ -1665,7 +1661,7 @@ exports.on = function(el1, el2){
       // Set up the starting positions
       newpath.style.strokeDasharray = pl + ' ' + pl;
 
-      if (settings.animationDirection == 'right') {
+      if (settings.animationDirection === 'right') {
         newpath.style.strokeDashoffset = pl;
       } else {
         newpath.style.strokeDashoffset = -pl;
@@ -1680,10 +1676,10 @@ exports.on = function(el1, el2){
       newpath.style.strokeDashoffset = '0';
     }
   }
-}
+};
 
 exports.off = function(){
   $("#ropebag").empty();
-}
+};
 
 },{"jenkins-js-modules":1}]},{},[6]);

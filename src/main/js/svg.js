@@ -11,7 +11,7 @@ var settings = {
                   fill              : 'none',
                   animate           : true,
                   animationDirection: 'right',
-                  animationDuration : .3
+                  animationDuration : 0.3
                };
 
 
@@ -22,22 +22,22 @@ exports.init = function(initObj) {
          settings[index] = value;
       });
     }
-}
+};
 
 exports.set = function(prop, val){
   //TODO validate
   settings[prop] = val;
-}
+};
 
 exports.on = function(el1, el2){
   var $el1 = $(el1);
   var $el2 = $(el2);
   if ($el1.length && $el2.length) {
-    var svgheight
-        ,p
-        ,svgleft
-        ,svgtop
-        ,svgwidth
+    var svgheight,
+        p,
+        svgleft,
+        svgtop,
+        svgwidth;
 
     var el1pos = $(el1).offset();
     var el2pos = $(el2).offset();
@@ -46,12 +46,11 @@ exports.on = function(el1, el2){
     var el1W = $(el1).outerWidth();
 
     var el2H = $(el2).outerHeight();
-    var el2W = $(el2).outerWidth();
 
     svgleft = Math.round(el1pos.left + el1W);
     svgwidth = Math.round(el2pos.left - svgleft);
 
-    var curvinessFactor, cpt;
+    var cpt;
 
     ////Determine which is higher/lower
     if( (el2pos.top+(el2H/2)) <= ( el1pos.top+(el1H/2))){
@@ -69,7 +68,7 @@ exports.on = function(el1, el2){
     }
     
     //ugly one-liner
-    $ropebag = $('#ropebag').length ? $('#ropebag') : $('body').append($( "<div id='ropebag' />" )).find('#ropebag');
+    var $ropebag = $('#ropebag').length ? $('#ropebag') : $('body').append($( "<div id='ropebag' />" )).find('#ropebag');
 
     var svgnode = document.createElementNS('http://www.w3.org/2000/svg','svg');
     var newpath = document.createElementNS('http://www.w3.org/2000/svg',"path");
@@ -88,7 +87,7 @@ exports.on = function(el1, el2){
       // Set up the starting positions
       newpath.style.strokeDasharray = pl + ' ' + pl;
 
-      if (settings.animationDirection == 'right') {
+      if (settings.animationDirection === 'right') {
         newpath.style.strokeDashoffset = pl;
       } else {
         newpath.style.strokeDashoffset = -pl;
@@ -103,8 +102,8 @@ exports.on = function(el1, el2){
       newpath.style.strokeDashoffset = '0';
     }
   }
-}
+};
 
 exports.off = function(){
   $("#ropebag").empty();
-}
+};

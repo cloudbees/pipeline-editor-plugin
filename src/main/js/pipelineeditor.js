@@ -92,7 +92,7 @@ function detailContainer() {
 function fixFlowCSS() {
   return '<style>.stage-listing > .row > .col-md-3:nth-child(4n+1) {' +
     'clear: both;' +
-  '}</style>;'
+  '}</style>';
 }
 
 /**
@@ -163,4 +163,4 @@ var samplePipeline =
   }
 
   
-]
+];

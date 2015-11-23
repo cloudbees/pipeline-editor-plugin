@@ -27,13 +27,13 @@ var ShellModule = {
     readChanges : function(actionId, currentStep) {
       // read the changes from the form and apply them. 
       // if it all checks out, return true, otherwise don't apply them, and return false. 
-      currentStep["name"] = $('#' + actionId + "_stepName").val();
-      currentStep["command"] = $('#' + actionId + "_command").val();
+      currentStep.name = $('#' + actionId + "_stepName").val();
+      currentStep.command = $('#' + actionId + "_command").val();
       return true; //this will cause pipeline view to be re-rendered.
     },
     
     generateScript : function(stepInfo){
-      return 'sh "' + stepInfo['command'] + '"';
+      return 'sh "' + stepInfo.command + '"';
     },
 };
 
@@ -57,13 +57,13 @@ var GitModule = {
     readChanges : function(actionId, currentStep) {
       // read the changes from the form and apply them. 
       // if it all checks out, return true, otherwise don't apply them, and return false. 
-      currentStep["name"] = $('#' + actionId + "_stepName").val();
-      currentStep["url"] = $('#' + actionId + "_url").val();
+      currentStep.name = $('#' + actionId + "_stepName").val();
+      currentStep.url = $('#' + actionId + "_url").val();
       return true; //this will cause pipeline view to be re-rendered.
     },
     
     generateScript : function(stepInfo){
-      return 'git ' + stepInfo['url'];
+      return 'git ' + stepInfo.url;
     },
 };
 
@@ -90,14 +90,14 @@ var StashModule = {
     readChanges : function(actionId, currentStep) {
       // read the changes from the form and apply them. 
       // if it all checks out, return true, otherwise don't apply them, and return false. 
-      currentStep["name"] = $('#' + actionId + "_name").val();
-      currentStep["includes"] = $('#' + actionId + "_includes").val();
-      currentStep["excludes"] = $('#' + actionId + "_excludes").val();
+      currentStep.name = $('#' + actionId + "_name").val();
+      currentStep.includes = $('#' + actionId + "_includes").val();
+      currentStep.excludes = $('#' + actionId + "_excludes").val();
       return true; //this will cause pipeline view to be re-rendered.
     },
     
     generateScript : function(stepInfo){
-      return 'stash name: "' + stepInfo['name'] + '", includes: "' + stepInfo['includes'] + '", excludes: "' + stepInfo['excludes'] + '"';
+      return 'stash name: "' + stepInfo.name + '", includes: "' + stepInfo.includes + '", excludes: "' + stepInfo.excludes + '"';
     },
 };
 
@@ -113,18 +113,20 @@ var RickModule = {
     },
     
     readChanges : function(actionId, currentStep) {
+      console.log("current step for rick is" + currentStep + actionId);
       // read the changes from the form and apply them. 
       // if it all checks out, return true, otherwise don't apply them, and return false. 
       return true; //this will cause pipeline view to be re-rendered.
     },
     
     generateScript : function(stepInfo){
+      console.log(stepInfo);
       return '/* you have been rick rolled */';
     },
 };
 
 
-editorModules = {
+var editorModules = {
   "sh" : ShellModule,
   "git" : GitModule,
   "stash" : StashModule,
@@ -133,11 +135,11 @@ editorModules = {
 
 exports.lookupEditor = function(type) {
   return editorModules[type];
-}
+};
 
 exports.listEditors = function() {
   return editorModules;
-}
+};
 
 
 /**
@@ -145,6 +147,7 @@ exports.listEditors = function() {
   */
 function renderTemplate(template, values, moreValues) {
   var result = template;
+  var key;
   for (key in values) {    
     result = result.split("{{" + key + "}}").join(values[key]);    
   }
