@@ -1,3 +1,4 @@
 target
 work
 node_modules
+src/main/resources/org/jenkinsci/plugins/pipelineeditor/pipelineeditor.js
