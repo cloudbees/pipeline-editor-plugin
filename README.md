@@ -10,3 +10,5 @@ To install:
 
 This will set up the js tooling needed and automatically build the changes to the source
 js which is stored in main/js to the plugin directory (just reload the browser after that).
+
+The magic happens in src/main/js/ (pipelineeditor.js is the main entry point for the plugin).

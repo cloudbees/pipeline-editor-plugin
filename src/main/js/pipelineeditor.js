@@ -8,7 +8,13 @@ var Belay = require('./svg');
 
 window.mic = $; //For debugging!
 
-/** Hook in to the edit button on the regular jenkins job config screen */
+/** 
+ * Hook in to the edit button on the regular jenkins job config screen 
+ * There may need to be changes here to do the equivalent of Behaviour js-Prototype code.
+ * (scroll down the bottom to see the original code concept).
+ *
+ * Get both the script and the json text that is stored in config.xml
+ */
 $(document).ready(function () {    
   var script = $("input[name='_.script']");
   var json = $("input[name='_.json']");
