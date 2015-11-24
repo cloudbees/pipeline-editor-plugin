@@ -5,8 +5,12 @@
 var $ = require('bootstrap-detached').getBootstrap();
 var h = require('./editor');
 var Belay = require('./svg'); 
+var samplePipeline = require("./sample_pipelines").simpleSample;
 
-window.mic = $; //For debugging!
+window.mic = $; //For debugging! - you can use `mic` as jquery.
+
+/* print out what editors are registered for use */
+console.log(window.pipelineEditors);
 
 /** 
  * Hook in to the edit button on the regular jenkins job config screen 
@@ -42,11 +46,11 @@ function showEditor($, confEditor, pageBody, script, json) {
                   "<div class='container'><input id='back-to-config' type=button class='btn btn-primary' value='Done'></input></div>"+
                   "</div></div>");
                   
-  $('#back-to-config').click(function() {      
-    confEditor.show();       
+  $('#back-to-config').click(function() {          
     $("#pipeline-visual-editor").remove();     
     window.location.hash = "";
     Belay.off();
+    confEditor.show();       
   });
   
   var pipeline = loadModelOrUseDefault(json.val());
@@ -55,7 +59,6 @@ function showEditor($, confEditor, pageBody, script, json) {
   h.drawPipeline(pipeline, {"script" : script, "json" : json });
   reJoinOnResize(pipeline);
    
- 
 }
 
 /**
@@ -66,6 +69,7 @@ function loadModelOrUseDefault(jsonText) {
     var pipelineParsed = JSON.parse(jsonText);
     return pipelineParsed;
   } else {
+    console.log("No pipeline has been saved, applying a sample template");
     return samplePipeline;
   }    
 }
@@ -119,64 +123,7 @@ function reJoinOnResize(pipeline) {
 }
 
 
-var samplePipeline = 
-[
-  {
-    "name" : "Checkout",
-    "steps" : [
-      {"type": "git", "name" : "Clone webapp", "url" : "git@github.com/thing/awesome.git"},
-    ]    
-  },
-  
-  
-  {
-    "name" : "Prepare Test Database",
-    "steps" : [
-      {"type": "sh", "name" : "Install Postgress", "command" : "install_postgres"},
-      {"type": "sh", "name" : "Initialise DB", "command" : "pgsql data/init.sql"},
-    ]    
-  },
-  
-  
- 
-  {
-    "name" : "Prepare",
-    "streams" : [
-      {"name" : "Ruby", "steps" : [
-        {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"},
-        {"type": "stash", "name" : "Stash compiled app", "includes": "/app", "excludes" : ""} 
-      ]},
-      {"name" : "Python","steps" : [
-        {"type": "sh", "name" : "Yeah", "command" : "exit()"}
-        
-      ]}
-    ]    
-  },
-  
-  {
-    "name" : "Stage and Test",
-    "steps" : []    
-  },
-  
-  {
-    "name" : "Approve",
-    "steps" : [],
-    "type" : "input"    
-  },
-  
-  {
-    "name" : "Deploy",
-    "steps" : [],
-    "node" : "devops-production"    
-  },
-  
-  {
-    "name" : "Party",
-    "steps" : [{"type": "rick", "name" : "Awesome" } ]    
-  }
 
-  
-];
 
 /**
  * Originally we used this prototype snipped to create the edit button and clear

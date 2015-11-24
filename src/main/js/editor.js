@@ -1,16 +1,17 @@
 /**
- * Pipeline editor main module. Dreaming of Alaskan pipelines 2 eva. 
+ * Pipeline editor main module. Dreaming of Alaskan pipelines 4 eva. 
  */
 
 
 var $ = require('bootstrap-detached').getBootstrap();
 var Belay = require('./svg'); 
-var editors = require('./steps/builtin');
+var editors = require('./steps/all');
 var stringify = require('./stringify');
 
 
 exports.autoJoin = autoJoin;
 
+editors.installEditors();
 /**
  * Draw the pipeline visualisation based on the pipeline data, including svg.
  * Current pipeline is stored in the "pipeline" variable assumed to be in scope. 
@@ -67,7 +68,7 @@ function addApplyChangesHooks(pipeline, formFields) {
  * For the given pipeline, put the values in the script and json form fields.
  */ 
 function writeOutChanges(pipeline, formFields) {
-    formFields.script.val(toWorkflow(pipeline, editors.listEditors()));
+    formFields.script.val(toWorkflow(pipeline, window.pipelineEditors));
     formFields.json.val(stringify.writeJSON(pipeline));
 }
 
@@ -116,7 +117,7 @@ function openEditor(pipeline, actionId, formFields) {
   var coordinates = actionIdToStep(actionId);
 
   var stepInfo = fetchStep(coordinates, pipeline);
-  var editorModule = editors.lookupEditor(stepInfo.type);
+  var editorModule = window.pipelineEditors[stepInfo.type];
    
   var editorHtml = editorModule.renderEditor(stepInfo, actionId); 
   var editPanel = $('#editor-panel');
@@ -134,7 +135,7 @@ function openEditor(pipeline, actionId, formFields) {
  */
 function handleEditorSave(pipeline, actionId, formFields) {
   var currentStep = fetchStep(actionIdToStep(actionId), pipeline);
-  var edModule = editors.lookupEditor(currentStep.type);
+  var edModule = window.pipelineEditors[currentStep.type];
   if (edModule.readChanges(actionId, currentStep)) {
       console.log("applied changes for " + actionId);
       //exports.drawPipeline(); -- don't want to do this as it collapses the step listing.
