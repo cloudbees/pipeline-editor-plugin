@@ -20,8 +20,6 @@ exports.drawPipeline = function (pipeline, formFields) {
   var pRow = $('#pipeline-row');
   pRow.empty();
   
-
-  
   for (var i=0; i < pipeline.length; i++) {
     var stage = pipeline[i];
     var currentId = "stage-" + i;      

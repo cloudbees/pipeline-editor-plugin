@@ -905,8 +905,6 @@ exports.drawPipeline = function (pipeline, formFields) {
   var pRow = $('#pipeline-row');
   pRow.empty();
   
-
-  
   for (var i=0; i < pipeline.length; i++) {
     var stage = pipeline[i];
     var currentId = "stage-" + i;      
@@ -1234,18 +1232,25 @@ function showEditor($, confEditor, pageBody, script, json) {
     Belay.off();
   });
   
-  var pipeline = samplePipeline;
-  if (json.val() !== "") {
-    var pipelineParsed = JSON.parse(json.val());
-    pipeline=pipelineParsed;
-  }
-  
+  var pipeline = loadModelOrUseDefault(json.val());
 
   h.initSVG();
   h.drawPipeline(pipeline, {"script" : script, "json" : json });
   reJoinOnResize(pipeline);
    
  
+}
+
+/**
+ * Load the json from the json field, if its a new job lets apply a default.
+ */
+function loadModelOrUseDefault(jsonText) {
+  if (jsonText !== "") {
+    var pipelineParsed = JSON.parse(jsonText);
+    return pipelineParsed;
+  } else {
+    return samplePipeline;
+  }    
 }
 
 
@@ -1355,6 +1360,38 @@ var samplePipeline =
 
   
 ];
+
+/**
+ * Originally we used this prototype snipped to create the edit button and clear
+ * doens't play nice with the new stuff, but kept here for reference as 
+ * some of the behaviour stuff may need to be retrofitted to the jquery based code.
+ * Behaviour.specify("INPUT.pipeline-editor", 'pipeline-editor-button', 0, function(e) {
+         var script = e.next("input");
+         var json = script.next("input");
+
+         makeButton(e,function(_) {
+             var pageBody = $('page-body');
+             var row = pageBody.down(".row");
+
+             row.style.display = "none";
+
+             pageBody.insert({bottom:"<div class=pipeline-editor style='padding:3em'><b>pipeline-editor</b><input type=button name=accept value=Accept></div>"});
+
+             var canvas = pageBody.down("> .pipeline-editor");
+             var accept = canvas.down("> INPUT");
+
+             makeButton(accept,function(_){
+                 // update fhe form values
+                 script.value = "...";
+                 json.value = "...";
+
+                 // kill the dialog
+                 canvas.remove();
+                 row.style.display = "block";
+             });
+         });
+ });
+ */
 
 		require('jenkins-js-modules').export(undefined, 'pipelineeditor', {});
     });
