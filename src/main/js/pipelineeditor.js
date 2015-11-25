@@ -5,7 +5,8 @@
 var $ = require('bootstrap-detached').getBootstrap();
 var h = require('./editor');
 var Belay = require('./svg'); 
-var samplePipeline = require("./sample_pipelines").simpleSample;
+var storage = require("./storage/json");
+
 
 window.mic = $; //For debugging! - you can use `mic` as jquery.
 
@@ -53,7 +54,7 @@ function showEditor($, confEditor, pageBody, script, json) {
     confEditor.show();       
   });
   
-  var pipeline = loadModelOrUseDefault(json.val());
+  var pipeline = storage.loadModelOrUseDefault(json.val());
 
   h.initSVG();
   h.drawPipeline(pipeline, {"script" : script, "json" : json });
@@ -61,18 +62,6 @@ function showEditor($, confEditor, pageBody, script, json) {
    
 }
 
-/**
- * Load the json from the json field, if its a new job lets apply a default.
- */
-function loadModelOrUseDefault(jsonText) {
-  if (jsonText !== "") {
-    var pipelineParsed = JSON.parse(jsonText);
-    return pipelineParsed;
-  } else {
-    console.log("No pipeline has been saved, applying a sample template");
-    return samplePipeline;
-  }    
-}
 
 
 /** The bit that holds the pipeline visualisation */

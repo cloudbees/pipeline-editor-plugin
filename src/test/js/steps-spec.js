@@ -2,7 +2,7 @@ var renderTemplate = require("../../main/js/steps/template.js").renderTemplate;
 var assert = require("assert");
 
 
-describe('Pipeline drawing', function() {
+describe('Super simple template', function() {
   
       it('should render a template', function () {
         assert.equal("yeah 42 yeah", renderTemplate("yeah {{something}} yeah", {"something" : 42}));        

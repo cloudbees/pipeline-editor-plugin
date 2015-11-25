@@ -1,4 +1,20 @@
-exports.simpleSample = [
+/**
+ * Load the json from the json field, if its a new job lets apply a default.
+ */
+exports.loadModelOrUseDefault = function(jsonText) {
+  
+  if (jsonText !== null && jsonText !== "") {
+    var pipelineParsed = JSON.parse(jsonText);
+    return pipelineParsed;
+  } else {
+    console.log("No pipeline has been saved, applying a sample template");
+    return simpleSample;
+  }    
+};
+
+/* some sample json starting points to default to */
+
+var simpleSample = [
   {
     "name" : "Checkout and Build",
     "steps" : [
@@ -29,6 +45,8 @@ exports.simpleSample = [
   
   
 ];
+exports.simpleSample = simpleSample;
+
 
 exports.complexSample = 
 [

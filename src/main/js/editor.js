@@ -6,7 +6,7 @@
 var $ = require('bootstrap-detached').getBootstrap();
 var Belay = require('./svg'); 
 var editors = require('./steps/all');
-var stringify = require('./stringify');
+var stringify = require('./storage/stringify');
 
 
 exports.autoJoin = autoJoin;
