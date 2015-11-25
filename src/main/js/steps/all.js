@@ -24,3 +24,5 @@ exports.installEditors = function() {
     window.pipelineEditors[ed] = editorModules[ed];
   }  
 };
+
+exports.all = editorModules;

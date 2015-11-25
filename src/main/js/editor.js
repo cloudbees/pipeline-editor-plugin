@@ -7,6 +7,7 @@ var $ = require('bootstrap-detached').getBootstrap();
 var Belay = require('./svg'); 
 var editors = require('./steps/all');
 var stringify = require('./storage/stringify');
+var wf = require('./storage/workflow');
 
 
 exports.autoJoin = autoJoin;
@@ -25,7 +26,7 @@ exports.drawPipeline = function (pipeline, formFields) {
     var stage = pipeline[i];
     var currentId = "stage-" + i;      
     //append a block if non parallel
-    if (!isParallelStage(stage)) {      
+    if (!wf.isParallelStage(stage)) {      
       pRow.append(normalStageBlock(currentId, stage));
     } else {      
       var subStages = "";
@@ -68,7 +69,7 @@ function addApplyChangesHooks(pipeline, formFields) {
  * For the given pipeline, put the values in the script and json form fields.
  */ 
 function writeOutChanges(pipeline, formFields) {
-    formFields.script.val(toWorkflow(pipeline, window.pipelineEditors));
+    formFields.script.val(wf.toWorkflow(pipeline, window.pipelineEditors));
     formFields.json.val(stringify.writeJSON(pipeline));
 }
 
@@ -196,7 +197,7 @@ function autoJoin(pipeline) {
     for (var i=0; i < pipeline.length; i++) {
       var stage = pipeline[i];
       var currentId = "stage-" + i;      
-      if (!isParallelStage(stage)) {      
+      if (!wf.isParallelStage(stage)) {      
         joinWith(previousPils, currentId);      
         previousPils = [currentId];      
       } else {      
@@ -241,59 +242,3 @@ exports.initSVG = function() {
   Belay.init({strokeWidth: 2});
   Belay.set('strokeColor', '#999');
 };
-
-
-/**
- * a parallel stage has to have streams
- */
-function isParallelStage(stage) {
-  if (stage.streams && stage.streams.length > 0) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-
-
-/**
- * Print out the workflow script using the given modules to render the steps. 
- */ 
-function toWorkflow(pipelineData, modules) {
-  function toStreams(streamData, modules) {
-    var par = "\n    parallel (";  
-    for (var i = 0; i < streamData.length; i++) {
-        var stream = streamData[i];
-        par += '\n     "' + stream.name + '" : {';
-        par += toSteps(stream.steps, modules);      
-        if (i === (streamData.length - 1)) {
-            par += "\n     }";
-        } else {
-            par += "\n     },";
-        }
-    }
-    return par + "\n    )"; 
-  }
-
-  function toSteps(stepData, modules) {
-    var steps = "";
-    for (var i = 0; i < stepData.length; i++) {
-      var stepInfo = stepData[i];  
-      var mod  = modules[stepInfo.type];
-      steps += "\n        " + mod.generateScript(stepInfo);
-    }
-    return steps;
-  }
-
-  var inner = "";
-  for (var i = 0; i < pipelineData.length; i++) {
-    var stage = pipelineData[i];
-    inner += '\n    stage name: "' + stage.name + '"';
-    if (stage.streams) {      
-      inner += toStreams(stage.streams, modules);
-    } else {
-      inner += toSteps(stage.steps, modules);
-    }
-  }  
-  return "node {" + inner + "\n}";  
-}
