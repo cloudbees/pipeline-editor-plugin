@@ -40,13 +40,16 @@ exports.drawPipeline = function (pipeline, formFields) {
             
     }
   }
+  pRow.append('<div class="col-md-3">' +
+              '<button class="list-group-item open-add-stage"><span class="glyphicon glyphicon-plus"></span> Add Stage</button></div>');
+  
   autoJoinDelay(pipeline);  
   addAutoJoinHooks(pipeline);
 
-  $(".open-editor").click(function(){
-    openEditor(pipeline, $( this ).attr('data-action-id'), formFields);
-  });
-
+  addOpenStepListener(pipeline, formFields);
+  addNewStepListener(pipeline, formFields);
+  addNewStageListener(pipeline);
+  
 };
 
 /** We will want to redraw the joins in some cases */
@@ -56,6 +59,32 @@ function addAutoJoinHooks(pipeline) {
   });
 
 }
+
+/** clicking on a step will open the editor */
+function addOpenStepListener(pipeline, formFields) {
+  $(".open-editor").click(function(){
+    openEditor(pipeline, $( this ).attr('data-action-id'), formFields);
+  });
+}
+
+/** clicking on add a step should open a popover with a selection of available steps */
+function addNewStepListener(pipeline, formFields) { // jshint ignore:line
+  $(".open-add-step").click(function(){
+    //TODO: implement me
+    var previousActionId = $( this ).attr('data-action-id');
+    console.log("TODO IMPLEMENT ME. Show a step selector and add it after: " + previousActionId + " and then open editor.");
+  });
+}
+
+/** clicking on add a stage should open a popover with stage editor */
+function addNewStageListener(pipeline) { // jshint ignore:line
+  $(".open-add-stage").click(function() {
+      //TODO: implement
+      console.log("TODO: IMPLEMENT ME.");
+  });
+}
+
+
 
 /** apply changes to any form-control elements */
 function addApplyChangesHooks(pipeline, formFields) {
@@ -105,11 +134,16 @@ function stepListing(stageId, steps)  {
     return '';
   } else {
     var buttons = '&nbsp;';
+    var lastActionId = '';
     for (var j=0; j < steps.length; ++j) {
         var actionId = stageId + "-" + j;                
-        buttons += '<button class="list-group-item open-editor" data-action-id="' + actionId + '">' + steps[j].name +'</a>';      
+        buttons += '<button class="list-group-item open-editor" data-action-id="' + actionId + '">' + steps[j].name +'</button>';      
+        lastActionId = actionId;
     }  
-    return '<div class="list-group">' + buttons + '</div>';    
+      
+    var addStepButton = '<button class="list-group-item open-add-step" data-action-id="' + lastActionId + '"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>';
+    
+    return '<div class="list-group">' + buttons + addStepButton + '</div>';    
   }
 }
 
