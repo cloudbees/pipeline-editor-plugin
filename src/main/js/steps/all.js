@@ -10,10 +10,10 @@
  */
 
 var editorModules = {
-  "sh" : require('./shell').editor,
-  "git" : require('./git').editor,
-  "stash" : require('./stash').editor,
-  "rick" : require('./rick').editor  
+  "sh" : require('./shell'),
+  "git" : require('./git'),
+  "stash" : require('./stash'),
+  "rick" : require('./rick')  
 };
 
 exports.installEditors = function() {

@@ -1,7 +1,7 @@
 var renderTemplate = require('./template').renderTemplate;
 var $ = require('bootstrap-detached').getBootstrap();
 
-exports.editor = {
+module.exports = {
     description: "Run a shell script",        
     
     renderEditor : function(stepInfo, actionId) {          

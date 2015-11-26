@@ -4,7 +4,7 @@
 
 var renderTemplate = require('./template').renderTemplate;
 
-exports.editor = {
+module.exports = {
     description: "Never going to give you up",        
     renderEditor : function(stepInfo, actionId) {      
       // provide a form to edit

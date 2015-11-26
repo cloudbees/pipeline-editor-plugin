@@ -6,7 +6,7 @@ var renderTemplate = require('./template').renderTemplate;
 var $ = require('bootstrap-detached').getBootstrap();
 
 
-exports.editor = {
+module.exports = {
     description: "Clone a git repository",        
     renderEditor : function(stepInfo, actionId) {      
       // provide a form to edit

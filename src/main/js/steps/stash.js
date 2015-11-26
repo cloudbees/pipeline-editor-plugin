@@ -2,7 +2,7 @@ var renderTemplate = require('./template').renderTemplate;
 var $ = require('bootstrap-detached').getBootstrap();
 
 
-exports.editor = {
+module.exports = {
     description: "Store output of a stage for use elsewhere",        
     renderEditor : function(stepInfo, actionId) {      
       // provide a form to edit
