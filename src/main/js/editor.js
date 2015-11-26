@@ -5,14 +5,14 @@
 
 var $ = require('bootstrap-detached').getBootstrap();
 var Belay = require('./svg'); 
-var editors = require('./steps/all');
-var stringify = require('./storage/stringify');
-var wf = require('./storage/workflow');
+
+var stringify = require('./model/stringify');
+var wf = require('./model/workflow');
 
 
 exports.autoJoin = autoJoin;
 
-editors.installEditors();
+
 /**
  * Draw the pipeline visualisation based on the pipeline data, including svg.
  * Current pipeline is stored in the "pipeline" variable assumed to be in scope. 
@@ -84,6 +84,7 @@ function parStageBlock(stageName, subStageId, subStage) {
                   stepListing(subStageId, subStage.steps) + '</div>' +
                   '</div></div></li>';
 }
+exports.parStageBlock = parStageBlock;
  
 /**
  * A non parallel stage. Parallel stages are a pipeline editor construct, not an inherent workflow property.
@@ -94,6 +95,7 @@ function normalStageBlock(currentId, stage) {
                 stage.name + '</a>' + '<div class="collapse" id="' + currentId + '_collapse">' +
                 stepListing(currentId, stage.steps) + '</div>' + '</div></div></div>';
 }
+exports.normalStageBlock = normalStageBlock;
 
 /**
  * Take a list of steps and return a listing of steps
@@ -164,6 +166,8 @@ function actionIdToStep(actionId) {
         console.log("ERROR: not a valid actionId");
     }
 }
+exports.actionIdToStep = actionIdToStep;
+
 
 /**
  * Take 2 or 3 indexes and find the step out of the pipelineData.
@@ -175,7 +179,7 @@ function fetchStep(coordinates, pipelineData) {
      return pipelineData[coordinates[0]].streams[coordinates[1]].steps[coordinates[2]];
    }
 }
-
+exports.fetchStep = fetchStep;
 
 
 /**

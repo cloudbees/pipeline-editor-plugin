@@ -5,12 +5,13 @@
 var $ = require('bootstrap-detached').getBootstrap();
 var h = require('./editor');
 var Belay = require('./svg'); 
-var storage = require("./storage/json");
-
+var storage = require("./model/json");
+var editors = require('./steps/all');
 
 window.mic = $; //For debugging! - you can use `mic` as jquery.
 
 /* print out what editors are registered for use */
+editors.installEditors();
 console.log(window.pipelineEditors);
 
 /** 

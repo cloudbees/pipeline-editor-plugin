@@ -1,4 +1,4 @@
-var wf = require("../../main/js/storage/workflow");
+var wf = require("../../main/js/model/workflow");
 var assert = require("assert");
 
 var windowHandle = require('window-handle');

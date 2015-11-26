@@ -1,5 +1,5 @@
 
-var storage = require("../../main/js/storage/json");
+var storage = require("../../main/js/model/json");
 var assert = require("assert");
 
 
