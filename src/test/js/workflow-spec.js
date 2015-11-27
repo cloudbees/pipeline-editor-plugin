@@ -55,3 +55,46 @@ describe('Workflow rendering', function() {
 
 
 });   
+
+describe('Add steps to stages', function() {
+    it('should work out coordinates correctly from stageId', function() {
+        assert.deepEqual([0], wf.stageIdToCoordinates("stage-0"));
+        assert.deepEqual([1,0], wf.stageIdToCoordinates("stage-1-0"));
+    });
+    
+    it('should insert into non parallel stage', function() {
+        var pipe = [        
+          {
+            "name" : "Do It",
+            "steps" : []
+          }
+        ];  
+        assert.equal(0, pipe[0].steps.length);
+        var newStep = {"type" : "sh", "command" :"x", "name": "foo"};
+        wf.insertStep(pipe, "stage-0", newStep);
+        assert.equal(1, pipe[0].steps.length);
+        assert.deepEqual(newStep, pipe[0].steps[0]);        
+    });
+    
+    it('should insert into parallel stage', function() {
+        var pipe = [        
+          {
+            "name" : "first stage"          
+          },
+          {
+            "name" : "Do It",
+            "streams" : [
+              {"name" : "Unit", "steps" : [
+                  {"type": "sh", "name" : "Run unit test suit", "command" : "/bin/ci/test"},                
+                ]
+              }
+            ]    
+          }
+        ];  
+        assert.equal(1, pipe[1].streams[0].steps.length);
+        var newStep = {"type" : "sh", "command" :"x", "name": "foo"};
+        wf.insertStep(pipe, "stage-1-0", newStep);
+        assert.equal(2, pipe[1].streams[0].steps.length);
+    });
+    
+});

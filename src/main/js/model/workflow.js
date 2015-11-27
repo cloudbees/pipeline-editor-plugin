@@ -4,6 +4,8 @@
 
 exports.isParallelStage = isParallelStage;
 exports.toWorkflow = toWorkflow;
+exports.insertStep = insertStep;
+exports.stageIdToCoordinates = stageIdToCoordinates;
 
 /**
  * a parallel stage has to have streams
@@ -14,6 +16,37 @@ function isParallelStage(stage) {
   } else {
     return false;
   }
+}
+
+/**
+ * take the pipeLineData model and insert the newStep at the end of the stage.
+ * A stage may be stage-0 or stage-1-1, for example (latter if it is a multi stream stage)
+ */
+function insertStep(pipelineData, stageId, newStep) {
+  var coords = stageIdToCoordinates(stageId);
+  if (coords.length === 1) {
+    pipelineData[coords[0]].steps.push(newStep);
+  } else {
+    pipelineData[coords[0]].streams[coords[1]].steps.push(newStep);
+  }
+
+}
+
+
+/** 
+ * ["stage-0"] -> [0]
+ * ["stage-1-1"] -> [1,1]
+ */
+function stageIdToCoordinates(stageId) {
+  var elements = stageId.split('-');
+  switch (elements.length) {
+    case 2:
+      return [parseInt(elements[1])];
+    case 3:
+      return [parseInt(elements[1]), parseInt(elements[2])];
+    default: 
+      console.log("ERROR: not a valid stageId");
+  }    
 }
 
 

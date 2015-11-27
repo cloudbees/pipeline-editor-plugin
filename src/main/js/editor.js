@@ -10,8 +10,6 @@ var stringify = require('./model/stringify');
 var wf = require('./model/workflow');
 
 
-exports.autoJoin = autoJoin;
-
 
 /**
  * Draw the pipeline visualisation based on the pipeline data, including svg.
@@ -70,17 +68,23 @@ function addOpenStepListener(pipeline, formFields) {
 /** clicking on add a step should open a popover with a selection of available steps */
 function addNewStepListener(pipeline, formFields) { // jshint ignore:line
   $(".open-add-step").click(function(){
-    //TODO: implement me
-    var previousActionId = $( this ).attr('data-action-id');
-    console.log("TODO IMPLEMENT ME. Show a step selector and add it after: " + previousActionId + " and then open editor.");
+    //TODO: finish this. Should open a choice of steps
+    var stageId = $( this ).attr('data-stage-id');
+    var dummyStep = {"type": "sh", "name" : "NEW STEP", "command" : "MAGIC HERE"};
+    console.log("TODO IMPLEMENT ME. Show a step selector and add it after: " + stageId + " and then open editor.");
+    wf.insertStep(pipeline, stageId, dummyStep);
+    //TODO: should refresh only once selected, and select the new step and expand the stage it is in
+    exports.drawPipeline(pipeline, formFields); 
   });
 }
 
 /** clicking on add a stage should open a popover with stage editor */
-function addNewStageListener(pipeline) { // jshint ignore:line
+function addNewStageListener(pipeline, formFields) { // jshint ignore:line
   $(".open-add-stage").click(function() {
       //TODO: implement
       console.log("TODO: IMPLEMENT ME.");
+      pipeline.push({"name" : "NEW STAGE", "steps" : []});
+      exports.drawPipeline(pipeline, formFields); 
   });
 }
 
@@ -127,21 +131,20 @@ function normalStageBlock(currentId, stage) {
 exports.normalStageBlock = normalStageBlock;
 
 /**
- * Take a list of steps and return a listing of steps
+ * Take a list of steps and return a listing of step buttons
  */
 function stepListing(stageId, steps)  {
   if (!steps) {
     return '';
   } else {
     var buttons = '&nbsp;';
-    var lastActionId = '';
     for (var j=0; j < steps.length; ++j) {
         var actionId = stageId + "-" + j;                
         buttons += '<button class="list-group-item open-editor" data-action-id="' + actionId + '">' + steps[j].name +'</button>';      
-        lastActionId = actionId;
     }  
       
-    var addStepButton = '<button class="list-group-item open-add-step" data-action-id="' + lastActionId + '"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>';
+    var addStepButton = '<button class="list-group-item open-add-step" data-stage-id="' + 
+                        stageId + '"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>';
     
     return '<div class="list-group">' + buttons + addStepButton + '</div>';    
   }
@@ -250,7 +253,7 @@ function autoJoin(pipeline) {
       }
     }    
 }
-
+exports.autoJoin = autoJoin;
 
 
 /**
