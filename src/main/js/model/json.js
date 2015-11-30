@@ -1,4 +1,23 @@
 /**
+ * The json model of the data: 
+ * pipeline is a [list of stages]
+ * each stage is an object that is either an ordinary stage, or a parallel stage.
+ * (this is not a workflow script concept, just a model abstraction here).
+ * 
+ * An ordinary stage: { "name" : for display purposes and logging, "steps" : [list of steps]}
+ * a step: { "name" : for display purposes only, "type" : determines what editor is loaded. }
+ * 
+ * A parallel stage: { "name": ..., "streams" : [list streams] }
+ *  A "stream" is sometimes called a "branch" in workflow examples, but this is confusing with SCM branches, 
+ *  so I have called it a stream. 
+ *  A stream is similar to a stage, { "name" : ... , "steps" : [list of steps]} containing steps.
+ *  The name of the stream is used in logs, and for display, however it is all under the one 
+ *  workflow "stage". 
+ * 
+ * See the samples below to make this more concrete.
+ */
+
+/**
  * Load the json from the json field, if its a new job lets apply a default.
  */
 exports.loadModelOrUseDefault = function(jsonText) {
