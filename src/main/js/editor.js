@@ -40,6 +40,7 @@ exports.drawPipeline = function (pipeline, formFields) {
   }
   pRow.append(addStageButton());
   addNewStageListener(pipeline, formFields);
+  addNewStreamListener(pipeline, formFields);
   
   autoJoinDelay(pipeline);  
   addAutoJoinHooks(pipeline);
@@ -65,10 +66,17 @@ function addStageButton() {
 }
 
 /** A stream is a named part of a parallel block in workflow */
-function addStreamButton() {
-  return '<button class="list-group-item open-add-stream edit-mode">' + 
+function addStreamButton(stageId) {
+  return '<button class="list-group-item open-add-stream edit-mode" data-stage-id="' + stageId + '">' + 
   '<span class="glyphicon glyphicon-plus"></span></button>' + 
   '<div id="add-stream-popover" data-placement="bottom"></div>';
+}
+
+/** add a new stream (sometimes called a branch) to the end of the list of streams in a stage */
+function addNewStreamListener(pipeline, formFields) {
+  pipeline = '';
+  formFields = '';
+  //TODO
 }
 
 /** We will want to redraw the joins in some cases */
@@ -116,14 +124,11 @@ function addNewStageListener(pipeline, formFields) { // jshint ignore:line
   });
 }
 
-
+/** the popover for a new  stage */
 function newStageBlock() {
-  var template = '<div class="form-group">' +                  
-                  '<input id="newStageName" type="text" class="form-control" placeholder="New Stage Name" value="">' +                      
-                  '</div>' +
-                  '<div class="form-group">' +
-                  '<input id="addStageBtn" type=button class="btn btn-primary" value="OK"></input>' +
-                  '</div>' +
+  var template = '<div class="input-group">' +                  
+                  '<input id="newStageName" type="text" class="form-control" placeholder="New Stage Name">' +                      
+                  '<span class="input-group-btn"><button id="addStageBtn" class="btn btn-default">OK</button></span>' +                  
                 '</div>';   
    return template;
 }
