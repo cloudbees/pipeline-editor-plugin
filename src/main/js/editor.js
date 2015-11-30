@@ -1,7 +1,8 @@
 /**
  * Pipeline editor main module. Dreaming of Alaskan pipelines 4 eva. 
+ *  Elements that are to be used when actually editing should have a class of 'edit-mode'.
+ *  Then we can support read only by simply $('.edit-mode').hide();
  */
-
 
 var $ = require('bootstrap-detached').getBootstrap();
 var Belay = require('./svg'); 
@@ -33,24 +34,42 @@ exports.drawPipeline = function (pipeline, formFields) {
         var subStageId = currentId + "-" + j;                
         subStages += parStageBlock(stage.name, subStageId, subStage);
       }      
-      var stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + '</ul></div>';
-      pRow.append(stageElement);
-            
+      var stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + addStreamButton() + '</ul></div>';
+      pRow.append(stageElement);      
     }
   }
-  pRow.append('<div class="col-md-3">' +
-              '<button class="list-group-item open-add-stage">' + 
-              '<span class="glyphicon glyphicon-plus"></span> Add Stage</button>' + 
-              '<div id="add-stage-popover" data-placement="bottom"></div></div>');
+  pRow.append(addStageButton());
+  addNewStageListener(pipeline, formFields);
   
   autoJoinDelay(pipeline);  
   addAutoJoinHooks(pipeline);
 
   addOpenStepListener(pipeline, formFields);
   addNewStepListener(pipeline, formFields);
-  addNewStageListener(pipeline, formFields);
   
 };
+
+/** redraw the pipeline and apply changes to the formFields in the Jenksin config page */
+function redrawPipeline(pipeline, formFields) {
+  exports.drawPipeline(pipeline, formFields);           
+  writeOutChanges(pipeline, formFields);              
+}
+
+
+/** This will add a plain stage to the end of the set of stages */
+function addStageButton() {
+  return '<div class="col-md-3 edit-mode">' +
+              '<button class="list-group-item open-add-stage">' + 
+              '<span class="glyphicon glyphicon-plus"></span> Add Stage</button>' + 
+              '<div id="add-stage-popover" data-placement="bottom"></div></div>';
+}
+
+/** A stream is a named part of a parallel block in workflow */
+function addStreamButton() {
+  return '<button class="list-group-item open-add-stream edit-mode">' + 
+  '<span class="glyphicon glyphicon-plus"></span></button>' + 
+  '<div id="add-stream-popover" data-placement="bottom"></div>';
+}
 
 /** We will want to redraw the joins in some cases */
 function addAutoJoinHooks(pipeline) {
@@ -76,7 +95,7 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
     console.log("TODO IMPLEMENT ME. Show a step selector and add it after: " + stageId + " and then open editor.");
     wf.insertStep(pipeline, stageId, dummyStep);
     //TODO: should refresh only once selected, and select the new step and expand the stage it is in
-    exports.drawPipeline(pipeline, formFields); 
+    redrawPipeline(pipeline, formFields); 
   });
 }
 
@@ -91,12 +110,12 @@ function addNewStageListener(pipeline, formFields) { // jshint ignore:line
           var newStageName = $("#newStageName").val();
           if (newStageName !== '') {
             pipeline.push({"name" : newStageName, "steps" : []});
-            exports.drawPipeline(pipeline, formFields);           
-            writeOutChanges(pipeline, formFields);              
+            redrawPipeline(pipeline, formFields);
           }
       });      
   });
 }
+
 
 function newStageBlock() {
   var template = '<div class="form-group">' +                  
@@ -163,7 +182,7 @@ function stepListing(stageId, steps)  {
         buttons += '<button class="list-group-item open-editor" data-action-id="' + actionId + '">' + steps[j].name +'</button>';      
     }  
       
-    var addStepButton = '<button class="list-group-item open-add-step" data-stage-id="' + 
+    var addStepButton = '<button class="list-group-item open-add-step edit-mode" data-stage-id="' + 
                         stageId + '"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>';
     
     return '<div class="list-group">' + buttons + addStepButton + '</div>';    
