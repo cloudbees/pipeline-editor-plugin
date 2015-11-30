@@ -39,14 +39,16 @@ exports.drawPipeline = function (pipeline, formFields) {
     }
   }
   pRow.append('<div class="col-md-3">' +
-              '<button class="list-group-item open-add-stage"><span class="glyphicon glyphicon-plus"></span> Add Stage</button></div>');
+              '<button class="list-group-item open-add-stage">' + 
+              '<span class="glyphicon glyphicon-plus"></span> Add Stage</button>' + 
+              '<div id="add-stage-popover" data-placement="bottom"></div></div>');
   
   autoJoinDelay(pipeline);  
   addAutoJoinHooks(pipeline);
 
   addOpenStepListener(pipeline, formFields);
   addNewStepListener(pipeline, formFields);
-  addNewStageListener(pipeline);
+  addNewStageListener(pipeline, formFields);
   
 };
 
@@ -78,16 +80,34 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
   });
 }
 
-/** clicking on add a stage should open a popover with stage editor */
+/** clicking on add a stage will at least ask a user for a name */
 function addNewStageListener(pipeline, formFields) { // jshint ignore:line
   $(".open-add-stage").click(function() {
-      //TODO: implement
-      console.log("TODO: IMPLEMENT ME.");
-      pipeline.push({"name" : "NEW STAGE", "steps" : []});
-      exports.drawPipeline(pipeline, formFields); 
+      var newStageP = $('#add-stage-popover');
+      newStageP.popover({'content' : newStageBlock(), 'html' : true});
+      newStageP.popover('show');      
+      $('#addStageBtn').click(function() {
+          newStageP.popover('toggle');
+          var newStageName = $("#newStageName").val();
+          if (newStageName !== '') {
+            pipeline.push({"name" : newStageName, "steps" : []});
+            exports.drawPipeline(pipeline, formFields);           
+            writeOutChanges(pipeline, formFields);              
+          }
+      });      
   });
 }
 
+function newStageBlock() {
+  var template = '<div class="form-group">' +                  
+                  '<input id="newStageName" type="text" class="form-control" placeholder="New Stage Name" value="">' +                      
+                  '</div>' +
+                  '<div class="form-group">' +
+                  '<input id="addStageBtn" type=button class="btn btn-primary" value="OK"></input>' +
+                  '</div>' +
+                '</div>';   
+   return template;
+}
 
 
 /** apply changes to any form-control elements */

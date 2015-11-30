@@ -67,8 +67,8 @@ function showEditor($, confEditor, pageBody, script, json) {
 
 /** The bit that holds the pipeline visualisation */
 function pipelineEditorArea() {
-  return '<div class="container stage-listing">          ' +
-    '<div id="pipeline-row" class="row"></div>        ' +
+  return '<div class="container stage-listing">' +
+    '<div id="pipeline-row" class="row"></div>' +
    '</div>';
 }
 
@@ -81,13 +81,13 @@ function detailContainer() {
       '<div class="row">' +
         '<div class="col-md-12">' +
           '<div class="panel panel-default">' +
-                '<div id="editor-panel" class="panel-body editor-detail"> ' +
+                '<div id="editor-panel" class="panel-body editor-detail">' +
                     'Click on a Step to view the details. ' +
                 '</div>' +
-          '</div>              ' +
-        '</div>              ' +
+          '</div>' +
+        '</div>' +
       '</div>' +
-    '</div>    ' +
+    '</div>' +
   '</div>';
 }
 
