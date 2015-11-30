@@ -34,11 +34,12 @@ exports.drawPipeline = function (pipeline, formFields) {
         var subStageId = currentId + "-" + j;                
         subStages += parStageBlock(stage.name, subStageId, subStage);
       }      
-      var stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + addStreamButton() + '</ul></div>';
+      var stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + addStreamButton(currentId) + '</ul></div>';
       pRow.append(stageElement);      
     }
   }
   pRow.append(addStageButton());
+  
   addNewStageListener(pipeline, formFields);
   addNewStreamListener(pipeline, formFields);
   
@@ -60,23 +61,46 @@ function redrawPipeline(pipeline, formFields) {
 /** This will add a plain stage to the end of the set of stages */
 function addStageButton() {
   return '<div class="col-md-3 edit-mode">' +
-              '<button class="list-group-item open-add-stage">' + 
-              '<span class="glyphicon glyphicon-plus"></span> Add Stage</button>' + 
-              '<div id="add-stage-popover" data-placement="bottom"></div></div>';
+          '<button class="list-group-item open-add-stage">' + 
+          '<span class="glyphicon glyphicon-plus"></span> Add Stage</button>' + 
+          '<div id="add-stage-popover" data-placement="bottom"></div></div>';
 }
 
 /** A stream is a named part of a parallel block in workflow */
 function addStreamButton(stageId) {
   return '<button class="list-group-item open-add-stream edit-mode" data-stage-id="' + stageId + '">' + 
-  '<span class="glyphicon glyphicon-plus"></span></button>' + 
-  '<div id="add-stream-popover" data-placement="bottom"></div>';
+         '<span class="glyphicon glyphicon-plus"></span></button>' + 
+        '<div id="add-stream-popover-' + stageId + '" data-placement="bottom"></div>';
 }
 
 /** add a new stream (sometimes called a branch) to the end of the list of streams in a stage */
 function addNewStreamListener(pipeline, formFields) {
-  pipeline = '';
-  formFields = '';
-  //TODO
+  $(".open-add-stream").click(function(){
+    var stageId = $( this ).attr('data-stage-id');
+    var newStreamP = $('#add-stream-popover-' + stageId);
+    newStreamP.popover({'content' : newStreamBlock(stageId), 'html' : true});
+    newStreamP.popover('show');      
+    $('#addStreamBtn-' + stageId).click(function() {
+        newStreamP.popover('toggle');
+        var newStreamName = $("#newStreamName-" + stageId).val();
+        if (newStreamName !== '') {
+          var coords = wf.stageIdToCoordinates(stageId);
+          pipeline[coords[0]].streams.push({"name" : newStreamName, "steps" : []});
+          redrawPipeline(pipeline, formFields);
+        }
+    });      
+  });
+
+
+/** the popover for a new stream */
+function newStreamBlock(stageId) {
+  var template = '<div class="input-group">' +                  
+                  '<input id="newStreamName-' + stageId + '" type="text" class="form-control" placeholder="New Parallel Branch Name">' +                      
+                  '<span class="input-group-btn"><button id="addStreamBtn-' + stageId + '" class="btn btn-default">OK</button></span>' +                  
+                '</div>';   
+  return template;
+}
+  
 }
 
 /** We will want to redraw the joins in some cases */
