@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "devDependencies": {
     "gulp": "^3.9.0",
-    "jenkins-js-builder": "0.0.28",
+    "jenkins-js-builder": "0.0.33",
     "jsdom": "^7.0.2"
   },
   "dependencies": {
     "bootstrap-detached": "^3.3.4-v6",
-    "jenkins-js-modules": "^1.3.0",
+    "jenkins-js-modules": "^1.4.0",
     "moment": "^2.10.6",
     "window-handle": "0.0.6"
   }
