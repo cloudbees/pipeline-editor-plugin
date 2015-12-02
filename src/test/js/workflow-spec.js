@@ -104,3 +104,46 @@ describe('Add steps to stages', function() {
     
     
 });
+
+describe('Find things in the pipeline array', function() {
+  it('should resolve actionId', function () {      
+    assert.deepEqual([0,1,2], wf.actionIdToStep("stage-0-1-2"));        
+    assert.deepEqual([0,1], wf.actionIdToStep("stage-0-1"));        
+    assert.deepEqual([1,1], wf.actionIdToStep("stage-1-1"));        
+  });    
+
+
+  it('should resolve actionId', function () {      
+    assert.deepEqual([0,1,2], wf.actionIdToStep("stage-0-1-2"));        
+    assert.deepEqual([0,1], wf.actionIdToStep("stage-0-1"));        
+    assert.deepEqual([1,1], wf.actionIdToStep("stage-1-1"));        
+  });    
+
+
+  it('should find the step info', function () {      
+    var pipeline = [
+      {
+        "name" : "Checkout",
+        "steps" : [
+          {"name" : "Clone webapp"},
+          {"name" : "Hair on fire"}  
+        ]    
+      },
+
+      {
+        "name" : "Prepare",
+        "streams" : [
+          {"name" : "Ruby", "steps" : [
+              {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"}
+            ]
+          }            
+        ]    
+      }];
+      var s1 = wf.fetchStep([0,0], pipeline);
+      var s2 = wf.fetchStep([0,1], pipeline);  
+      var s3 = wf.fetchStep([1,0,0], pipeline);
+      assert.equal("Clone webapp", s1.name);  
+      assert.equal("Hair on fire", s2.name);  
+      assert.equal("Install Ruby", s3.name);          
+  });  
+});

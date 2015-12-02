@@ -4,7 +4,8 @@
  
 var $ = require('bootstrap-detached').getBootstrap();
 var h = require('./editor');
-var Belay = require('./svg'); 
+var Belay = require('./svg/svg'); 
+var lines = require('./svg/lines'); 
 var storage = require("./model/json");
 var editors = require('./steps/all');
 
@@ -57,7 +58,7 @@ function showEditor($, confEditor, pageBody, script, json) {
   
   var pipeline = storage.loadModelOrUseDefault(json.val());
 
-  h.initSVG();
+  lines.initSVG();
   h.drawPipeline(pipeline, {"script" : script, "json" : json });
   reJoinOnResize(pipeline);
    
@@ -108,7 +109,7 @@ function fixFlowCSS() {
  */
 function reJoinOnResize(pipeline) {
   $(window).resize(function(){            
-    h.autoJoin(pipeline);
+    lines.autoJoin(pipeline);
   });
 }
 

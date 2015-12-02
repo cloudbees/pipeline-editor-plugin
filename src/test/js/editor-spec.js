@@ -27,47 +27,6 @@ describe('Editor controller basics', function() {
     assert.notEqual(-1, block.indexOf("Clone webapp2"));      
   });
   
-  
-  it('should resolve actionId', function () {      
-    assert.deepEqual([0,1,2], e.actionIdToStep("stage-0-1-2"));        
-    assert.deepEqual([0,1], e.actionIdToStep("stage-0-1"));        
-    assert.deepEqual([1,1], e.actionIdToStep("stage-1-1"));        
-  });    
-
-
-  it('should resolve actionId', function () {      
-    assert.deepEqual([0,1,2], e.actionIdToStep("stage-0-1-2"));        
-    assert.deepEqual([0,1], e.actionIdToStep("stage-0-1"));        
-    assert.deepEqual([1,1], e.actionIdToStep("stage-1-1"));        
-  });    
-
-
-  it('should find the step info', function () {      
-    var pipeline = [
-      {
-        "name" : "Checkout",
-        "steps" : [
-          {"name" : "Clone webapp"},
-          {"name" : "Hair on fire"}  
-        ]    
-      },
-
-      {
-        "name" : "Prepare",
-        "streams" : [
-          {"name" : "Ruby", "steps" : [
-              {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"}
-            ]
-          }            
-        ]    
-      }];
-      var s1 = e.fetchStep([0,0], pipeline);
-      var s2 = e.fetchStep([0,1], pipeline);  
-      var s3 = e.fetchStep([1,0,0], pipeline);
-      assert.equal("Clone webapp", s1.name);  
-      assert.equal("Hair on fire", s2.name);  
-      assert.equal("Install Ruby", s3.name);          
-  });   
 
 
 });

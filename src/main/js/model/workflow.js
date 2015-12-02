@@ -13,6 +13,8 @@ exports.isParallelStage = isParallelStage;
 exports.toWorkflow = toWorkflow;
 exports.insertStep = insertStep;
 exports.stageIdToCoordinates = stageIdToCoordinates;
+exports.actionIdToStep = actionIdToStep;
+exports.fetchStep = fetchStep;
 
 /**
  * a parallel stage has to have streams
@@ -43,6 +45,7 @@ function insertStep(pipelineData, stageId, newStep) {
 
 
 /** 
+ * get the array coordinates of a stage
  * ["stage-0"] -> [0]
  * ["stage-1-1"] -> [1,1]
  */
@@ -57,6 +60,41 @@ function stageIdToCoordinates(stageId) {
       console.log("ERROR: not a valid stageId");
   }    
 }
+
+
+/**
+ * an actionId is something like stage-1-2 or stage-1-2-3
+ * This will return an array of the step co-ordinates.
+ * So stage-1-2 = [1,2]
+ *    stage-1-2-3 = [1,2,3]
+ * the first number is the stage index, second is the step or stream index. 
+ * the third number is if it is a parallel stage (so it is [stage, stream, step]) 
+ */
+function actionIdToStep(actionId) {
+    var elements = actionId.split('-');
+    switch (elements.length) {
+      case 3:
+        return [parseInt(elements[1]), parseInt(elements[2])];
+      case 4:
+        return [parseInt(elements[1]), parseInt(elements[2]), parseInt(elements[3])];  
+      default: 
+        console.log("ERROR: not a valid actionId");
+    }
+}
+
+
+/**
+ * Take 2 or 3 indexes and find the step out of the pipelineData.
+ */
+function fetchStep(coordinates, pipelineData) {
+   if (coordinates.length === 2) {
+     return pipelineData[coordinates[0]].steps[coordinates[1]];
+   } else {
+     return pipelineData[coordinates[0]].streams[coordinates[1]].steps[coordinates[2]];
+   }
+}
+
+
 
 
 /**
