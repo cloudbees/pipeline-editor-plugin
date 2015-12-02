@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "devDependencies": {
     "gulp": "^3.9.0",
+    "jenkins-handlebars-rt": "^1.0.1",
     "jenkins-js-builder": "0.0.33",
     "jenkins-js-test": "0.0.16"
   },

@@ -59,7 +59,13 @@
       <type>hpi</type>
     </dependency>
     <dependency>
-      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <groupId>org.jenkins-ci.ui</groupId>
+      <artifactId>handlebars</artifactId>
+      <version>1.0</version>
+      <type>hpi</type>
+    </dependency>
+    <dependency>
+    <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-aggregator</artifactId>
       <version>1.10</version>
     </dependency>
