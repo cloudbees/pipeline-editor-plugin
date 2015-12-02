@@ -49,7 +49,7 @@ describe('Workflow rendering', function() {
     
     var script = wf.toWorkflow(pipe, editorModules);
     assert.notEqual(-1, script.indexOf("/app"));
-    assert.notEqual(-1, script.indexOf("git git@thing.com/yeah"));
+    assert.notEqual(-1, script.indexOf("git 'git@thing.com/yeah'"));
         
   }); 
 
@@ -71,9 +71,12 @@ describe('Add steps to stages', function() {
         ];  
         assert.equal(0, pipe[0].steps.length);
         var newStep = {"type" : "sh", "command" :"x", "name": "foo"};
-        wf.insertStep(pipe, "stage-0", newStep);
+        var resultActionId = wf.insertStep(pipe, "stage-0", newStep);
+        assert.equal("stage-0-0", resultActionId);
         assert.equal(1, pipe[0].steps.length);
-        assert.deepEqual(newStep, pipe[0].steps[0]);        
+        assert.deepEqual(newStep, pipe[0].steps[0]); 
+        
+        assert.equal("stage-0-1", wf.insertStep(pipe, "stage-0", newStep));       
     });
     
     it('should insert into parallel stage', function() {
@@ -93,8 +96,11 @@ describe('Add steps to stages', function() {
         ];  
         assert.equal(1, pipe[1].streams[0].steps.length);
         var newStep = {"type" : "sh", "command" :"x", "name": "foo"};
-        wf.insertStep(pipe, "stage-1-0", newStep);
+        var resultActionId = wf.insertStep(pipe, "stage-1-0", newStep);
+        assert.equal("stage-1-0-1", resultActionId);
         assert.equal(2, pipe[1].streams[0].steps.length);
     });
+    
+    
     
 });

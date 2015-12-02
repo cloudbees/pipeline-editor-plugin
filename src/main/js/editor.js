@@ -2,6 +2,10 @@
  * Pipeline editor main module. Dreaming of Alaskan pipelines 4 eva. 
  *  Elements that are to be used when actually editing should have a class of 'edit-mode'.
  *  Then we can support read only by simply $('.edit-mode').hide();
+ * 
+ * I Recommended that you understand the stage/step/parallel/node concepts in workflow well before looking further.
+ * "Normal stage" means a normal workflow stage. A "parallel stage" is just a stage that 
+ *  has a parallel set of streams (sometimes called branches) under it, as is the workflow convention.
  */
 
 var $ = require('bootstrap-detached').getBootstrap();
@@ -89,17 +93,17 @@ function addNewStreamListener(pipeline, formFields) {
           redrawPipeline(pipeline, formFields);
         }
     });      
-  });
+  });  
 
 
-/** the popover for a new stream */
-function newStreamBlock(stageId) {
-  var template = '<div class="input-group">' +                  
-                  '<input id="newStreamName-' + stageId + '" type="text" class="form-control" placeholder="New Parallel Branch Name">' +                      
-                  '<span class="input-group-btn"><button id="addStreamBtn-' + stageId + '" class="btn btn-default">OK</button></span>' +                  
-                '</div>';   
-  return template;
-}
+  /** the popover for a new stream */
+  function newStreamBlock(stageId) {
+    var template = '<div class="input-group">' +                  
+                    '<input id="newStreamName-' + stageId + '" type="text" class="form-control" placeholder="New Parallel Branch Name">' +                      
+                    '<span class="input-group-btn"><button id="addStreamBtn-' + stageId + '" class="btn btn-default">OK</button></span>' +                  
+                  '</div>';   
+    return template;
+  }
   
 }
 
@@ -108,7 +112,6 @@ function addAutoJoinHooks(pipeline) {
   $(".autojoin").click(function() {
     autoJoinDelay(pipeline);
   });
-
 }
 
 /** clicking on a step will open the editor */
@@ -121,15 +124,63 @@ function addOpenStepListener(pipeline, formFields) {
 /** clicking on add a step should open a popover with a selection of available steps */
 function addNewStepListener(pipeline, formFields) { // jshint ignore:line
   $(".open-add-step").click(function(){
-    //TODO: finish this. Should open a choice of steps
+    
     var stageId = $( this ).attr('data-stage-id');
-    var dummyStep = {"type": "sh", "name" : "NEW STEP", "command" : "MAGIC HERE"};
-    console.log("TODO IMPLEMENT ME. Show a step selector and add it after: " + stageId + " and then open editor.");
-    wf.insertStep(pipeline, stageId, dummyStep);
-    //TODO: should refresh only once selected, and select the new step and expand the stage it is in
-    redrawPipeline(pipeline, formFields); 
+    console.log(stageId);
+    var newStepP = $('#add-step-popover-' + stageId);
+    newStepP.popover({'content' : newStepBlock(stageId, window.pipelineEditors), 'html' : true});
+    newStepP.popover('show');      
+
+    $("#addStepBtn-" + stageId).click(function() {        
+        var selected = document.querySelector('input[name="newStepType-' + stageId + '"]:checked');
+        var name = $('#newStepName-' + stageId).val();
+        newStepP.popover('toggle');
+        if (selected) {
+            console.log(selected.value);  
+            console.log(name);
+            if (!name) {
+              name = "New Step";
+            }
+            var actionId = wf.insertStep(pipeline, stageId, {"type": selected.value, "name" : name});                      
+            redrawPipeline(pipeline, formFields);
+            openEditor(pipeline, actionId, formFields);
+        }
+    });
+
+    /*    wf.insertStep(pipeline, stageId, dummyStep);
+     *    //TODO: should refresh only once selected, and select the new step and expand the stage it is in
+-    * redrawPipeline(pipeline, formFields); 
+     */
+     //var selected = document.querySelector('input[name="optionsRadios"]:checked');
+     //console.log(selected);
   });
+  
+  
+  
 }
+
+/** the popover for a new step */
+function newStepBlock(stageId, pipelineEditors) {
+  
+  var choices = '';   
+  for (var key in pipelineEditors) {
+    if (pipelineEditors.hasOwnProperty(key)) {
+      var ed = pipelineEditors[key];
+      choices += '<div class="radio"><label>' +
+      '<input type="radio" name="newStepType-' + stageId + '" value="' + key + '">' +
+      ed.description + 
+      '</label></div>';
+    }
+  }         
+  
+  return choices + 
+                  '<div class="input-group">' +                                        
+                  '<input id="newStepName-' + stageId + '" type="text" class="form-control" placeholder="Step Name">' +                                          
+                  '<span class="input-group-btn"><button id="addStepBtn-' + stageId + '" class="btn btn-default">OK</button></span>' +                  
+                  '</div>';   
+  
+}
+
 
 /** clicking on add a stage will at least ask a user for a name */
 function addNewStageListener(pipeline, formFields) { // jshint ignore:line
@@ -212,7 +263,8 @@ function stepListing(stageId, steps)  {
     }  
       
     var addStepButton = '<button class="list-group-item open-add-step edit-mode" data-stage-id="' + 
-                        stageId + '"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>';
+                        stageId + '"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>' +
+                        '</button><div id="add-step-popover-' + stageId + '" data-placement="bottom"></div>';
     
     return '<div class="list-group">' + buttons + addStepButton + '</div>';    
   }
@@ -221,7 +273,7 @@ function stepListing(stageId, steps)  {
 /**
  * Taking the actionId (co-ordinates), find the step info and load it up.
  */
-function openEditor(pipeline, actionId, formFields) {
+function openEditor(pipeline, actionId, formFields) {  
   var coordinates = actionIdToStep(actionId);
 
   var stepInfo = fetchStep(coordinates, pipeline);

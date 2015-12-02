@@ -32,6 +32,6 @@ module.exports = {
     },
     
     generateScript : function(stepInfo){
-      return 'git ' + stepInfo.url;
+      return 'git \'' + stepInfo.url + '\'';
     },
 };

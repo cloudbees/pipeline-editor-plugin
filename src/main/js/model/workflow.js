@@ -1,5 +1,12 @@
 /**
  * Contains magic for rendering out to workflow script from the json model.
+ * 
+ * In some places we use the convention "stageId" style string to point to what stage we are talking about. This stage id is of the form: 
+ *     stage-X for a "normal" stage. and stage-X-Y to specity the stream in a parallel stage.
+ * In some places we use actionId. This is the coordinates to a step. 
+ *     stage-0-0 wll indicate it is the first step of the first stage. 
+ *     stage-0-0-0 will indicate it is the first step of the first stream of the first stage. 
+*       ie stage-<stage>-<step> if normal. stage-<stage>-<stream>-<step> if it has parallel.
  */
 
 exports.isParallelStage = isParallelStage;
@@ -24,12 +31,14 @@ function isParallelStage(stage) {
  */
 function insertStep(pipelineData, stageId, newStep) {
   var coords = stageIdToCoordinates(stageId);
+  var steps = [];
   if (coords.length === 1) {
-    pipelineData[coords[0]].steps.push(newStep);
+    steps = pipelineData[coords[0]].steps;
   } else {
-    pipelineData[coords[0]].streams[coords[1]].steps.push(newStep);
+    steps = pipelineData[coords[0]].streams[coords[1]].steps;
   }
-
+  steps.push(newStep);
+  return stageId + "-" + (steps.length - 1);
 }
 
 
