@@ -1,5 +1,6 @@
 
-var storage = require("../../main/js/model/json");
+var jsTest = require('jenkins-js-test');
+var storage = jsTest.requireSrcModule("model/json");
 var assert = require("assert");
 
 
