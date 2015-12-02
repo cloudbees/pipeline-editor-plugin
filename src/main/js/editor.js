@@ -63,18 +63,13 @@ function redrawPipeline(pipeline, formFields) {
 
 
 /** This will add a plain stage to the end of the set of stages */
-function addStageButton() {
-  return '<div class="col-md-3 edit-mode">' +
-          '<button class="list-group-item open-add-stage">' + 
-          '<span class="glyphicon glyphicon-plus"></span> Add Stage</button>' + 
-          '<div id="add-stage-popover" data-placement="bottom"></div></div>';
+function addStageButton() {    
+  return require('./templates/stage-button.hbs')();
 }
 
 /** A stream is a named part of a parallel block in workflow */
 function addStreamButton(stageId) {
-  return '<button class="list-group-item open-add-stream edit-mode" data-stage-id="' + stageId + '">' + 
-         '<span class="glyphicon glyphicon-plus"></span></button>' + 
-        '<div id="add-stream-popover-' + stageId + '" data-placement="bottom"></div>';
+  return require('./templates/stream-button.hbs')({stageId: stageId});
 }
 
 /** add a new stream (sometimes called a branch) to the end of the list of streams in a stage */
@@ -98,11 +93,7 @@ function addNewStreamListener(pipeline, formFields) {
 
   /** the popover for a new stream */
   function newStreamBlock(stageId) {
-    var template = '<div class="input-group">' +                  
-                    '<input id="newStreamName-' + stageId + '" type="text" class="form-control" placeholder="New Parallel Branch Name">' +                      
-                    '<span class="input-group-btn"><button id="addStreamBtn-' + stageId + '" class="btn btn-default">OK</button></span>' +                  
-                  '</div>';   
-    return template;
+    return require('./templates/stream-block.hbs')({stageId: stageId});
   }
   
 }
@@ -150,7 +141,8 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
 
 /** the popover for a new step */
 function newStepBlock(stageId, pipelineEditors) {  
-  var choices = '';   
+  var choices = '';
+  // TODO: Move the following into the template ... iterate the list of steps etc
   for (var key in pipelineEditors) {
     if (pipelineEditors.hasOwnProperty(key)) {
       var ed = pipelineEditors[key];
@@ -160,12 +152,7 @@ function newStepBlock(stageId, pipelineEditors) {
       '</label></div>';
     }
   }           
-  return choices + 
-                  '<div class="input-group">' +                                        
-                  '<input id="newStepName-' + stageId + '" type="text" class="form-control" placeholder="Step Name">' +                                          
-                  '<span class="input-group-btn"><button id="addStepBtn-' + stageId + '" class="btn btn-default">OK</button></span>' +                  
-                  '</div>';   
-  
+  return choices + require('./templates/step-block.hbs')({stageId: stageId});  
 }
 
 
@@ -188,11 +175,7 @@ function addNewStageListener(pipeline, formFields) { // jshint ignore:line
 
 /** the popover for a new  stage */
 function newStageBlock() {
-  var template = '<div class="input-group">' +                  
-                  '<input id="newStageName" type="text" class="form-control" placeholder="New Stage Name">' +                      
-                  '<span class="input-group-btn"><button id="addStageBtn" class="btn btn-default">OK</button></span>' +                  
-                '</div>';   
-   return template;
+   return require('./templates/stage-block.hbs')();
 }
 
 
@@ -216,12 +199,12 @@ function writeOutChanges(pipeline, formFields) {
  * parallel stages are an item in an ordered list.
  */
 function parStageBlock(stageName, subStageId, subStage) {
-  var subStageName = stageName + ": " +  subStage.name;
-  return '<li><div id="' + subStageId + '"  class="panel panel-default"><div class="panel-heading">' +
-                  '<a role="button" class="autojoin" data-toggle="collapse" href="#' + subStageId + '_collapse">'  + 
-                  subStageName + '</a>' + '<div class="collapse" id="' + subStageId + '_collapse">' +
-                  stepListing(subStageId, subStage.steps) + '</div>' +
-                  '</div></div></li>';
+  return require('./templates/parallel-stage-block.hbs')({
+      stageName: stageName,
+      subStageId: subStageId,
+      subStage: subStage,
+      stepListing: stepListing(subStageId, subStage.steps)
+  });
 }
 exports.parStageBlock = parStageBlock;
  
@@ -229,10 +212,11 @@ exports.parStageBlock = parStageBlock;
  * A non parallel stage. Parallel stages are a pipeline editor construct, not an inherent workflow property.
  */
 function normalStageBlock(currentId, stage) {
-  return '<div class="col-md-3"><div id="' + currentId + '" class="panel panel-default"><div class="panel-heading">' +
-                '<a role="button" class="autojoin" data-toggle="collapse" href="#' + currentId + '_collapse">' + 
-                stage.name + '</a>' + '<div class="collapse" id="' + currentId + '_collapse">' +
-                stepListing(currentId, stage.steps) + '</div>' + '</div></div></div>';
+  return require('./templates/normal-stage-block.hbs')({
+      currentId: currentId,
+      stage: stage,
+      stepListing: stepListing(currentId, stage.steps)
+  });
 }
 exports.normalStageBlock = normalStageBlock;
 
@@ -243,6 +227,7 @@ function stepListing(stageId, steps)  {
   if (!steps) {
     return '';
   } else {
+    // TODO templatise
     var buttons = '&nbsp;';
     for (var j=0; j < steps.length; ++j) {
         var actionId = stageId + "-" + j;                
