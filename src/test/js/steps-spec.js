@@ -1,4 +1,5 @@
-var renderTemplate = require("../../main/js/steps/template.js").renderTemplate;
+var jsTest = require('jenkins-js-test');
+var renderTemplate = jsTest.requireSrcModule("steps/template.js").renderTemplate;
 var assert = require("assert");
 
 
