@@ -163,18 +163,10 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
 
 /** the popover for a new step */
 function newStepBlock(stageId, pipelineEditors) {  
-  var choices = '';
-  // TODO: Move the following into the template ... iterate the list of steps etc
-  for (var key in pipelineEditors) {
-    if (pipelineEditors.hasOwnProperty(key)) {
-      var ed = pipelineEditors[key];
-      choices += '<div class="radio"><label>' +
-      '<input type="radio" name="newStepType-' + stageId + '" value="' + key + '">' +
-      ed.description + 
-      '</label></div>';
-    }
-  }           
-  return choices + require('./templates/step-block.hbs')({stageId: stageId});  
+  return require('./templates/step-block.hbs')({
+      stageId: stageId,
+      steps: pipelineEditors
+  });  
 }
 
 
