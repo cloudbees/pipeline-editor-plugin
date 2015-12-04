@@ -239,14 +239,10 @@ exports.normalStageBlock = normalStageBlock;
  * Take a list of steps and return a listing of step buttons
  */
 function stepListing(stageId, steps)  {
-  if (!steps) {
-    return '';
-  } else {
-      return require('./templates/steps-listing.hbs')({
-          stageId: stageId,
-          steps: steps
-      });
-  }
+    return require('./templates/steps-listing.hbs')({
+        stageId: stageId,
+        steps: steps
+    });
 }
 
 /**

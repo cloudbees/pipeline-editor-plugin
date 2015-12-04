@@ -1,3 +1,4 @@
+{{#if steps}}
 <div class="list-group step-listing">
     {{#each steps}}
     <button class="list-group-item open-editor" data-action-id="{{../stageId}}-{{@index}}">{{name}}</button>
@@ -7,3 +8,4 @@
     </button>
     <div id="add-step-popover-{{stageId}}" data-placement="bottom"></div>
 </div>
+{{/if}}    
