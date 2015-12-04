@@ -172,4 +172,67 @@ describe('Find things in the pipeline array', function() {
         done();
     });
   });  
+  
+  it('should combine parallel to regular', function(done) {
+    jsTest.onPage(function() {
+      var wf = jsTest.requireSrcModule("model/workflow");
+      var pipeline = [
+        {
+        "name" : "Prepare",
+        "streams" : [
+          {"name" : "Ruby", "steps" : [
+              {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"}
+            ]
+          },            
+          {"name" : "Ruby", "steps" : [
+              {"type": "git", "name" : "Another thing", "command" : "/bin/ci/install_ruby version=2.0.1"}
+            ]
+          }           
+         ]    
+        }
+      ];
+      
+      wf.parallelToNormal(pipeline, "stage-0");
+      
+      var stage = pipeline[0];
+      assert.equal(2, stage.steps.length);
+      assert.equal(undefined, stage.streams);
+      
+      assert.equal('sh', pipeline[0].steps[0].type);
+      assert.equal('Install Ruby', pipeline[0].steps[0].name);
+      
+      done();
+    });
+    
+  });
+  
+  it('should convert to parallel automatically', function(done) {
+    jsTest.onPage(function() {
+      var wf = jsTest.requireSrcModule("model/workflow");
+      var pipeline = [
+        {
+        "name" : "Prepare",
+        "steps" : [          
+              {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"},          
+              {"type": "git", "name" : "Another thing", "command" : "/bin/ci/install_ruby version=2.0.1"}
+          ]    
+        }
+      ];
+      
+      wf.makeParallel(pipeline, "stage-0");
+      
+      var stage = pipeline[0];
+      assert.equal(undefined, stage.steps);
+      assert.equal(2, stage.streams.length);
+      
+      assert.equal("Install Ruby", stage.streams[0].name);
+      assert.equal("Install Ruby", stage.streams[0].steps[0].name);
+      
+      done();
+    });
+    
+  });  
+  
+  
+  
 });

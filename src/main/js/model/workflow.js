@@ -15,6 +15,8 @@ exports.insertStep = insertStep;
 exports.stageIdToCoordinates = stageIdToCoordinates;
 exports.actionIdToStep = actionIdToStep;
 exports.fetchStep = fetchStep;
+exports.parallelToNormal = parallelToNormal;
+exports.makeParallel = makeParallel;
 
 /**
  * a parallel stage has to have streams
@@ -59,6 +61,56 @@ function stageIdToCoordinates(stageId) {
     default: 
       console.log("ERROR: not a valid stageId");
   }    
+}
+
+/**
+ * Convert a stage that is already parallel, to one that is normal, but combining the streams. 
+ */
+function parallelToNormal(pipeline, stageId) {
+    var coords = stageIdToCoordinates(stageId);
+    var stage = pipeline[coords[0]];    
+    var streams = stage.streams;    
+    var newSteps = streams.reduce(function(acc, val){
+      return acc.concat(val.steps);
+    }, []);    
+    delete stage.streams;
+    stage.steps = newSteps;
+}
+
+/**
+ * Take a normal stage which is a list of steps, and split it evenly to parallel streams. 
+ * Use the name of the first steps as the stream name. 
+ */
+function makeParallel(pipeline, stageId) {
+   var coords = stageIdToCoordinates(stageId);
+   var stage = pipeline[coords[0]];    
+   var steps = stage.steps;
+   
+   var splitAt = Math.floor(steps.length/2);
+   var leftSteps = [];
+   var rightSteps = [];
+   for (var i=0; i < steps.length; ++i) {
+     if (i < splitAt) {
+       leftSteps.push(steps[i]);
+     } else {
+       rightSteps.push(steps[i]);
+     }
+   }
+   var leftName = '';
+   var rightName = '';   
+   if (leftSteps[0]) {
+     leftName = leftSteps[0].name;
+   }
+   if (rightSteps[0]) {
+     rightName = rightSteps[0].name;
+   }
+   
+   delete stage.steps;
+   stage.streams = [
+     {"name" : leftName, "steps" : leftSteps},
+     {"name" : rightName, "steps" : rightSteps}
+   ];
+   
 }
 
 
