@@ -242,18 +242,10 @@ function stepListing(stageId, steps)  {
   if (!steps) {
     return '';
   } else {
-    // TODO templatise
-    var buttons = '&nbsp;';
-    for (var j=0; j < steps.length; ++j) {
-        var actionId = stageId + "-" + j;                
-        buttons += '<button class="list-group-item open-editor" data-action-id="' + actionId + '">' + steps[j].name +'</button>';      
-    }  
-      
-    var addStepButton = '<button class="list-group-item open-add-step edit-mode" data-stage-id="' + 
-                        stageId + '"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>' +
-                        '</button><div id="add-step-popover-' + stageId + '" data-placement="bottom"></div>';
-    
-    return '<div class="list-group">' + buttons + addStepButton + '</div>';    
+      return require('./templates/steps-listing.hbs')({
+          stageId: stageId,
+          steps: steps
+      });
   }
 }
 
