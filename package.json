@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "bootstrap-detached": "^3.3.4-v6",
+    "jenkins-js-builder": "0.0.35",
     "jenkins-js-modules": "^1.4.0",
     "moment": "^2.10.6",
     "window-handle": "0.0.6"
