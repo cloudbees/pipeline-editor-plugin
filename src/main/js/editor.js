@@ -36,7 +36,7 @@ exports.drawPipeline = function (pipeline, formFields) {
       for (var j = 0; j < stage.streams.length; j++) {
         var subStage = stage.streams[j];
         var subStageId = currentId + "-" + j;                
-        subStages += parStageBlock(stage.name, subStageId, subStage);
+        subStages += parStageBlock(stage.name, subStageId, subStage, currentId);
       }      
       var stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + addStreamButton(currentId) + '</ul></div>';
       pRow.append(stageElement);      
@@ -220,11 +220,12 @@ function writeOutChanges(pipeline, formFields) {
 /**
  * parallel stages are an item in an ordered list.
  */
-function parStageBlock(stageName, subStageId, subStage) {
+function parStageBlock(stageName, subStageId, subStage, stageId) {
   return require('./templates/parallel-stage-block.hbs')({
       stageName: stageName,
       subStageId: subStageId,
       subStage: subStage,
+      currentId: stageId,
       stepListing: stepListing(subStageId, subStage.steps)
   });
 }
