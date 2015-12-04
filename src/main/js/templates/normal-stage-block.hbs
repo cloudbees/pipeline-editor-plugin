@@ -1,8 +1,14 @@
-<div class="col-md-3">
+<div class="col-md-3">  
     <div id="{{currentId}}" class="panel panel-default">
-        <div class="panel-heading">
+        <div class="panel-heading">           
             <a role="button" class="autojoin" data-toggle="collapse" href="#{{currentId}}_collapse">{{stage.name}}</a>
             <div class="collapse" id="{{currentId}}_collapse">{{{stepListing}}}</div>
+                        
+            <a role="button" class="open-stage-config" data-stage-id="{{currentId}}">
+              <span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span>
+            </a>
+            <div id="edit-stage-popover-{{currentId}}" data-placement="bottom"></div>
+            
         </div>
     </div>
 </div>

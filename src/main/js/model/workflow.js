@@ -17,6 +17,7 @@ exports.actionIdToStep = actionIdToStep;
 exports.fetchStep = fetchStep;
 exports.parallelToNormal = parallelToNormal;
 exports.makeParallel = makeParallel;
+exports.toggleParallel = toggleParallel;
 
 /**
  * a parallel stage has to have streams
@@ -61,6 +62,16 @@ function stageIdToCoordinates(stageId) {
     default: 
       console.log("ERROR: not a valid stageId");
   }    
+}
+
+/** Toggle the parallel-ness of a stage */
+function toggleParallel(pipeline, stageId) {
+  var coords = stageIdToCoordinates(stageId);
+  if (isParallelStage(pipeline[coords[0]])) {
+    parallelToNormal(pipeline, stageId);
+  } else {
+    makeParallel(pipeline, stageId);
+  }
 }
 
 /**

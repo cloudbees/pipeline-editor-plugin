@@ -53,6 +53,8 @@ exports.drawPipeline = function (pipeline, formFields) {
   addOpenStepListener(pipeline, formFields);
   addNewStepListener(pipeline, formFields);
   
+  addConfigStageListener(pipeline, formFields);
+  
 };
 
 /** redraw the pipeline and apply changes to the formFields in the Jenksin config page */
@@ -70,6 +72,26 @@ function addStageButton() {
 /** A stream is a named part of a parallel block in workflow */
 function addStreamButton(stageId) {
   return require('./templates/stream-button.hbs')({stageId: stageId});
+}
+
+function addConfigStageListener(pipeline, formFields) {
+  $(".open-stage-config").click(function() {
+    console.log("yeah");
+      var stageId = $( this ).attr('data-stage-id');
+      var stageConfigP = $("#edit-stage-popover-" + stageId);
+      var popContent = require('./templates/stage-config-block.hbs')({stageId: stageId});
+      stageConfigP.popover({'content' : popContent, 'html' : true});
+      stageConfigP.popover('show');
+      $('#toggleParallel-' + stageId).click(function() {
+        wf.toggleParallel(pipeline, stageId);
+        redrawPipeline(pipeline, formFields);
+        stageConfigP.popover('toggle');
+      });
+      $('#cancelStageConfig-' + stageId).click(function () {
+        stageConfigP.popover('toggle');
+      });
+      
+  });
 }
 
 /** add a new stream (sometimes called a branch) to the end of the list of streams in a stage */

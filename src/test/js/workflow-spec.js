@@ -206,7 +206,7 @@ describe('Find things in the pipeline array', function() {
     
   });
   
-  it('should convert to parallel automatically', function(done) {
+  it('should convert to parallel automatically and toggle', function(done) {
     jsTest.onPage(function() {
       var wf = jsTest.requireSrcModule("model/workflow");
       var pipeline = [
@@ -227,6 +227,15 @@ describe('Find things in the pipeline array', function() {
       
       assert.equal("Install Ruby", stage.streams[0].name);
       assert.equal("Install Ruby", stage.streams[0].steps[0].name);
+
+      wf.toggleParallel(pipeline, "stage-0");
+      assert.equal(undefined, stage.streams);
+      assert.equal(2, stage.steps.length);
+      
+      wf.toggleParallel(pipeline, "stage-0");
+      assert.equal(undefined, stage.steps);
+      assert.equal(2, stage.streams.length);
+
       
       done();
     });
