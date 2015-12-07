@@ -20,7 +20,16 @@ describe('json storage basics', function() {
           assert.equal("sh 'ye\\'ah'", sh.generateScript({'command' : "ye'ah"}));          
           done();
         });
-
       });      
+
+
+      it('should handle no command', function (done) {
+        jsTest.onPage(function() {
+          var sh = jsTest.requireSrcModule("steps/shell");
+          assert.equal("// no command set for step", sh.generateScript({}));          
+          done();
+        });
+      });      
+
       
     }); 
