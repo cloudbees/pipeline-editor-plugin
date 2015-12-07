@@ -76,7 +76,6 @@ function addStreamButton(stageId) {
 
 function addConfigStageListener(pipeline, formFields) {
   $(".open-stage-config").click(function() {
-    console.log("yeah");
       var stageId = $( this ).attr('data-stage-id');
       var stageConfigP = $("#edit-stage-popover-" + stageId);
       var popContent = require('./templates/stage-config-block.hbs')({stageId: stageId});
@@ -138,7 +137,6 @@ function addOpenStepListener(pipeline, formFields) {
 function addNewStepListener(pipeline, formFields) { // jshint ignore:line
   $(".open-add-step").click(function(){
     var stageId = $( this ).attr('data-stage-id');
-    console.log(stageId);
     var newStepP = $('#add-step-popover-' + stageId);
     newStepP.popover({'content' : newStepBlock(stageId, window.pipelineEditors), 'html' : true});
     newStepP.popover('show');      
@@ -148,8 +146,6 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
         var name = $('#newStepName-' + stageId).val();
         newStepP.popover('toggle');
         if (selected) {
-            console.log(selected.value);  
-            console.log(name);
             if (!name) {
               name = "New Step";
             }
