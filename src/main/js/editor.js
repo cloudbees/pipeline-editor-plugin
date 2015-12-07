@@ -204,6 +204,7 @@ function writeOutChanges(pipeline, formFields) {
     formFields.script.val(wf.toWorkflow(pipeline, window.pipelineEditors));
     formFields.json.val(stringify.writeJSON(pipeline));
 }
+exports.writeOutChanges = writeOutChanges;
 
 /**
  * parallel stages are an item in an ordered list.

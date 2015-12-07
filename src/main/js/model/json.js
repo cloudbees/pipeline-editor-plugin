@@ -20,9 +20,8 @@
 /**
  * Load the json from the json field, if its a new job lets apply a default.
  */
-exports.loadModelOrUseDefault = function(jsonText) {
-  
-  if (jsonText !== null && jsonText !== "") {
+exports.loadModelOrUseDefault = function(jsonText) {  
+  if (exports.existingPipeline(jsonText)) {
     var pipelineParsed = JSON.parse(jsonText);
     return pipelineParsed;
   } else {
@@ -31,14 +30,19 @@ exports.loadModelOrUseDefault = function(jsonText) {
   }    
 };
 
+/** if not valid json then we need to resort to a sample */
+exports.existingPipeline = function(jsonText) {
+  return jsonText !== null && jsonText !== "";
+};
+
 /* some sample json starting points to default to */
 
 var simpleSample = [
   {
     "name" : "Checkout and Build",
     "steps" : [
-      {"type": "git", "name" : "Clone webapp", "url" : "git@github.com/thing/awesome.git"},
-      {"type": "sh", "name" : "Build", "command" : "make && make install"},
+      {"type": "git", "name" : "Clone webapp", "url" : "https://github.com/michaelneale/sample-pipeline-project.git"},
+      {"type": "sh", "name" : "Build", "command" : "echo 'hello world'"}
     ]    
   },
   
@@ -46,11 +50,10 @@ var simpleSample = [
     "name" : "Test",
     "streams" : [
       {"name" : "Unit", "steps" : [
-        {"type": "sh", "name" : "Run unit test suit", "command" : "/bin/ci/test"},
-        {"type": "stash", "name" : "Stash results", "includes": "/test-reports", "excludes" : ""} 
+        {"type": "sh", "name" : "Run unit test suit", "command" : "./bin/ci/test"}
       ]},
       {"name" : "Integration","steps" : [
-        {"type": "sh", "name" : "Run slower tests", "command" : "/bin/ci/integration-tests"}        
+        {"type": "sh", "name" : "Run slower tests", "command" : "./bin/ci/integration-tests"}        
       ]}
     ]    
   },
@@ -58,7 +61,7 @@ var simpleSample = [
   {
     "name" : "Deploy",
     "steps" : [
-      {"type": "sh", "name" : "Deploy to staging", "command" : "/bin/ci/deploy staging"},
+      {"type": "sh", "name" : "Deploy to staging", "command" : "./bin/ci/deploy"},
     ]    
   }
   

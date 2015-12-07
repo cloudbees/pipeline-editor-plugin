@@ -30,6 +30,6 @@ module.exports = {
     },
     
     generateScript : function(stepInfo){
-      return 'sh \'' + stepInfo.command + '\'';
+      return 'sh \'' + stepInfo.command.replace(/'/g, "\\'") + '\'';
     },
 };

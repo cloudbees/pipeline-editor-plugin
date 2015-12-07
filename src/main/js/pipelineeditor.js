@@ -56,9 +56,16 @@ function showEditor($, confEditor, pageBody, script, json) {
     confEditor.show();       
   });
   
+  
   var pipeline = storage.loadModelOrUseDefault(json.val());
 
   lines.initSVG();
+  
+  if (!storage.existingPipeline(json.val())) {
+    console.log("Brand new pipeline so saving the changes the first time");
+    h.writeOutChanges(pipeline, {"script" : script, "json" : json });
+  } 
+  
   h.drawPipeline(pipeline, {"script" : script, "json" : json });
   reJoinOnResize(pipeline);
    
