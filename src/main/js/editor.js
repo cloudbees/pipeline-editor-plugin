@@ -37,9 +37,8 @@ exports.drawPipeline = function (pipeline, formFields) {
         var subStage = stage.streams[j];
         var subStageId = currentId + "-" + j;                
         subStages += parStageBlock(stage.name, subStageId, subStage, currentId);
-      }      
-      var stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + addStreamButton(currentId) + '</ul></div>';
-      pRow.append(stageElement);      
+      }            
+      pRow.append(parallelStack(subStages, currentId));      
     }
   }
   pRow.append(addStageButton());
@@ -67,6 +66,10 @@ function redrawPipeline(pipeline, formFields) {
 /** This will add a plain stage to the end of the set of stages */
 function addStageButton() {    
   return require('./templates/stage-button.hbs')();
+}
+
+function parallelStack(subStages, currentId) {
+  return require('./templates/parallel-stack.hbs')({subStages: subStages, streamButton : addStreamButton(currentId), currentId : currentId });
 }
 
 /** A stream is a named part of a parallel block in workflow */

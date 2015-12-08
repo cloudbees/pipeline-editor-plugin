@@ -56,6 +56,8 @@ function showEditor($, confEditor, pageBody, script, json) {
     confEditor.show();       
   });
   
+  window.Belay = Belay;
+  
   
   var pipeline = storage.loadModelOrUseDefault(json.val());
 
