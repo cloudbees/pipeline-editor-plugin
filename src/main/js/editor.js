@@ -75,18 +75,18 @@ function addStreamButton(stageId) {
 }
 
 function addConfigStageListener(pipeline, formFields) {
-  $(".open-stage-config").click(function() {
+  $("#pipeline-visual-editor").on('click', ".open-stage-config", function() {
       var stageId = $( this ).attr('data-stage-id');
       var stageConfigP = $("#edit-stage-popover-" + stageId);
       var popContent = require('./templates/stage-config-block.hbs')({stageId: stageId});
       stageConfigP.popover({'content' : popContent, 'html' : true});
       stageConfigP.popover('show');
-      $('#toggleParallel-' + stageId).click(function() {
+      $('#toggleParallel-' + stageId).off('click').click(function() {
         wf.toggleParallel(pipeline, stageId);
         redrawPipeline(pipeline, formFields);
         stageConfigP.popover('toggle');
       });
-      $('#cancelStageConfig-' + stageId).click(function () {
+      $('#cancelStageConfig-' + stageId).off('click').click(function () {
         stageConfigP.popover('toggle');
       });
       
@@ -95,12 +95,12 @@ function addConfigStageListener(pipeline, formFields) {
 
 /** add a new stream (sometimes called a branch) to the end of the list of streams in a stage */
 function addNewStreamListener(pipeline, formFields) {
-  $(".open-add-stream").click(function(){
+  $("#pipeline-visual-editor").on('click', ".open-add-stream", function(){
     var stageId = $( this ).attr('data-stage-id');
     var newStreamP = $('#add-stream-popover-' + stageId);
     newStreamP.popover({'content' : newStreamBlock(stageId), 'html' : true});
     newStreamP.popover('show');      
-    $('#addStreamBtn-' + stageId).click(function() {
+    $('#addStreamBtn-' + stageId).off('click').click(function() {
         newStreamP.popover('toggle');
         var newStreamName = $("#newStreamName-" + stageId).val();
         if (newStreamName !== '') {
@@ -121,27 +121,27 @@ function addNewStreamListener(pipeline, formFields) {
 
 /** We will want to redraw the joins in some cases */
 function addAutoJoinHooks(pipeline) {
-  $(".autojoin").click(function() {
+  $("#pipeline-visual-editor").on('click', ".autojoin", function() {
     lines.autoJoinDelay(pipeline);
   });
 }
 
 /** clicking on a step will open the editor */
 function addOpenStepListener(pipeline, formFields) {
-  $(".open-editor").click(function(){
+  $("#pipeline-visual-editor").on('click', ".open-editor", function(){
     openEditor(pipeline, $( this ).attr('data-action-id'), formFields);
   });
 }
 
 /** clicking on add a step should open a popover with a selection of available steps */
 function addNewStepListener(pipeline, formFields) { // jshint ignore:line
-  $(".open-add-step").click(function(){
+  $("#pipeline-visual-editor").on('click', ".open-add-step", function(){
     var stageId = $( this ).attr('data-stage-id');
     var newStepP = $('#add-step-popover-' + stageId);
     newStepP.popover({'content' : newStepBlock(stageId, steps), 'html' : true});
     newStepP.popover('show');      
 
-    $("#addStepBtn-" + stageId).click(function() {        
+    $("#addStepBtn-" + stageId).off('click').click(function() {        
         var selected = document.querySelector('input[name="newStepType-' + stageId + '"]:checked');
         var name = $('#newStepName-' + stageId).val();
         newStepP.popover('toggle');
@@ -171,11 +171,11 @@ function newStepBlock(stageId, pipelineEditors) {
 
 /** clicking on add a stage will at least ask a user for a name */
 function addNewStageListener(pipeline, formFields) { // jshint ignore:line
-  $(".open-add-stage").click(function() {
+  $("#pipeline-visual-editor").on('click', ".open-add-stage", function() {
       var newStageP = $('#add-stage-popover');
       newStageP.popover({'content' : newStageBlock(), 'html' : true});
       newStageP.popover('show');      
-      $('#addStageBtn').click(function() {
+      $('#addStageBtn').off('click').click(function() {
           newStageP.popover('toggle');
           var newStageName = $("#newStageName").val();
           if (newStageName !== '') {
