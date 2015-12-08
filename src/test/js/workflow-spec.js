@@ -46,7 +46,7 @@ describe('Workflow rendering', function() {
           }
         ];  
         
-        var editorModules = require('../../main/js/steps/all').all;
+        var editorModules = jsTest.requireSrcModule('steps');
         
         var script = wf.toWorkflow(pipe, editorModules);
         assert.notEqual(-1, script.indexOf("/app"));

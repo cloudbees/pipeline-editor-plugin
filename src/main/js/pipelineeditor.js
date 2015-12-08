@@ -7,13 +7,13 @@ var h = require('./editor');
 var Belay = require('./svg/svg'); 
 var lines = require('./svg/lines'); 
 var storage = require("./model/json");
-var editors = require('./steps/all');
+var editors = require('./steps');
+var win = require('window-handle').getWindow();
 
-window.mic = $; //For debugging! - you can use `mic` as jquery.
+win.mic = $; //For debugging! - you can use `mic` as jquery.
 
 /* print out what editors are registered for use */
-editors.installEditors();
-console.log(window.pipelineEditors);
+console.log(editors);
 
 /** 
  * Hook in to the edit button on the regular jenkins job config screen 
@@ -27,7 +27,7 @@ $(document).ready(function () {
   var json = $("input[name='_.json']");
   var confEditor = $('#page-body > div');
   var pageBody = $('#page-body');
-  if ("#pipeline-editor" === window.location.hash) {
+  if ("#pipeline-editor" === win.location.hash) {
     showEditor($, confEditor, pageBody, script, json);
   }
   $('#edit-pipeline').click(function() {
@@ -40,7 +40,7 @@ $(document).ready(function () {
  */ 
 function showEditor($, confEditor, pageBody, script, json) {
   confEditor.hide();    
-  window.location.hash = "#pipeline-editor";
+  win.location.hash = "#pipeline-editor";
   pageBody.append("<div id='pipeline-visual-editor'>" +
                   "<div class='bootstrap-3'><p>" +
                   fixFlowCSS() +
@@ -51,7 +51,7 @@ function showEditor($, confEditor, pageBody, script, json) {
                   
   $('#back-to-config').click(function() {          
     $("#pipeline-visual-editor").remove();     
-    window.location.hash = "";
+    win.location.hash = "";
     Belay.off();
     confEditor.show();       
   });

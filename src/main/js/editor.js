@@ -14,7 +14,7 @@ var lines = require('./svg/lines');
 var stringify = require('./model/stringify');
 var wf = require('./model/workflow');
 
-
+var steps = require('./steps');
 
 /**
  * Draw the pipeline visualisation based on the pipeline data, including svg.
@@ -138,7 +138,7 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
   $(".open-add-step").click(function(){
     var stageId = $( this ).attr('data-stage-id');
     var newStepP = $('#add-step-popover-' + stageId);
-    newStepP.popover({'content' : newStepBlock(stageId, window.pipelineEditors), 'html' : true});
+    newStepP.popover({'content' : newStepBlock(stageId, steps), 'html' : true});
     newStepP.popover('show');      
 
     $("#addStepBtn-" + stageId).click(function() {        
@@ -201,7 +201,7 @@ function addApplyChangesHooks(pipeline, formFields) {
  * For the given pipeline, put the values in the script and json form fields.
  */ 
 function writeOutChanges(pipeline, formFields) {
-    formFields.script.val(wf.toWorkflow(pipeline, window.pipelineEditors));
+    formFields.script.val(wf.toWorkflow(pipeline, steps));
     formFields.json.val(stringify.writeJSON(pipeline));
 }
 exports.writeOutChanges = writeOutChanges;
@@ -249,7 +249,7 @@ function openEditor(pipeline, actionId, formFields) {
   var coordinates = wf.actionIdToStep(actionId);
 
   var stepInfo = wf.fetchStep(coordinates, pipeline);
-  var editorModule = window.pipelineEditors[stepInfo.type];
+  var editorModule = steps[stepInfo.type];
    
   var editorHtml = editorModule.renderEditor(stepInfo, actionId); 
   var editPanel = $('#editor-panel');
@@ -267,7 +267,7 @@ function openEditor(pipeline, actionId, formFields) {
  */
 function handleEditorSave(pipeline, actionId, formFields) {
   var currentStep = wf.fetchStep(wf.actionIdToStep(actionId), pipeline);
-  var edModule = window.pipelineEditors[currentStep.type];
+  var edModule = steps[currentStep.type];
   if (edModule.readChanges(actionId, currentStep)) {
       console.log("applied changes for " + actionId);
       //exports.drawPipeline(); -- don't want to do this as it collapses the step listing.
