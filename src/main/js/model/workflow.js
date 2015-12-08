@@ -36,14 +36,17 @@ function isParallelStage(stage) {
  */
 function insertStep(pipelineData, stageId, newStep) {
   var coords = stageIdToCoordinates(stageId);
-  var steps = [];
+  var stepContainer;
   if (coords.length === 1) {
-    steps = pipelineData[coords[0]].steps;
+    stepContainer = pipelineData[coords[0]];
   } else {
-    steps = pipelineData[coords[0]].streams[coords[1]].steps;
+    stepContainer = pipelineData[coords[0]].streams[coords[1]];
   }
-  steps.push(newStep);
-  return stageId + "-" + (steps.length - 1);
+  stepContainer.steps.push(newStep);
+  return {
+    actionId: stageId + "-" + (stepContainer.steps.length - 1),
+    stepContainer: stepContainer
+  };
 }
 
 

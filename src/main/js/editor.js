@@ -149,9 +149,12 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
             if (!name) {
               name = "New Step";
             }
-            var actionId = wf.insertStep(pipeline, stageId, {"type": selected.value, "name" : name});                      
-            redrawPipeline(pipeline, formFields);
-            openEditor(pipeline, actionId, formFields);
+            var newStep = {"type": selected.value, "name": name};
+            var insertResult = wf.insertStep(pipeline, stageId, newStep);
+            writeOutChanges(pipeline, formFields);
+            refreshStepListing(stageId, insertResult.stepContainer.steps);
+            lines.autoJoinDelay(pipeline, 0); // redraw immediately ... no delay
+            openEditor(pipeline, insertResult.actionId, formFields);            
         }
     });
   });
@@ -242,6 +245,11 @@ function stepListing(stageId, steps)  {
     });
 }
 
+function refreshStepListing(stageId, steps)  {
+    var content = stepListing(stageId, steps);
+    $('#' + stageId + ' .step-listing').replaceWith(content);
+}
+
 /**
  * Taking the actionId (co-ordinates), find the step info and load it up.
  */
@@ -260,6 +268,8 @@ function openEditor(pipeline, actionId, formFields) {
   $('#editor-heading').text(stageInfo.name + " / " + stepInfo.name);
   
   addApplyChangesHooks(pipeline, formFields);
+    
+  $(".open-editor[data-action-id='" + actionId + "']").focus();
 }
 
 /**

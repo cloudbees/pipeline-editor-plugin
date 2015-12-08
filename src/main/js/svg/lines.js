@@ -52,11 +52,18 @@ function joinWith(pilList, currentId) {
 /**
  * Wait until the steps are expanded before joining them together again
  */
-exports.autoJoinDelay = function(pipeline) {
-  Belay.off();
-  setTimeout(function() {
+exports.autoJoinDelay = function(pipeline, delay) {
+  if (delay === undefined) {
+    delay = 500;
+  }    
+  if (delay > 0) {
+    Belay.off();
+    setTimeout(function() {
+      autoJoin(pipeline);
+    }, delay);
+  } else {
     autoJoin(pipeline);
-  }, 500);
+  }
 };
 
 /**
