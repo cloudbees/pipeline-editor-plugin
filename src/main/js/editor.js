@@ -38,7 +38,7 @@ exports.drawPipeline = function (pipeline, formFields) {
         var subStageId = currentId + "-" + j;                
         subStages += parStageBlock(stage.name, subStageId, subStage, currentId);
       }      
-      var stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + addStreamButton(currentId) + '</ul></div>';
+      var stageElement = '<div class="col-md-3 outer-stage" data-stage-id="' + currentId + '"><ul class="list-unstyled">' + subStages + addStreamButton(currentId) + '</ul></div>';
       pRow.append(stageElement);      
     }
   }
@@ -94,7 +94,7 @@ function addConfigStageListener(pipeline, formFields) {
 }
 
 /** add a new stream (sometimes called a branch) to the end of the list of streams in a stage */
-function addNewStreamListener(pipeline, formFields) {
+function addNewStreamListener(pipeline) {
   $("#pipeline-visual-editor").on('click', ".open-add-stream", function(){
     var stageId = $( this ).attr('data-stage-id');
     var newStreamP = $('#add-stream-popover-' + stageId);
@@ -105,8 +105,18 @@ function addNewStreamListener(pipeline, formFields) {
         var newStreamName = $("#newStreamName-" + stageId).val();
         if (newStreamName !== '') {
           var coords = wf.stageIdToCoordinates(stageId);
-          pipeline[coords[0]].streams.push({"name" : newStreamName, "steps" : []});
-          redrawPipeline(pipeline, formFields);
+          var outerStage = pipeline[coords[0]];
+          var newStream = {"name": newStreamName, "steps": []};
+          
+          outerStage.streams.push(newStream);
+          
+          // Insert the new stream stage directly into the DOM...
+          var subStageId = stageId + "-" + (outerStage.streams.length - 1);
+          var streamView = parStageBlock(outerStage.name, subStageId, newStream, stageId);          
+          $(streamView).insertAfter(
+              $(".outer-stage[data-stage-id='" + stageId + "'] ul li").last()
+          );            
+          lines.autoJoinDelay(pipeline, 0); // redraw immediately ... no delay
         }
     });      
   });  
