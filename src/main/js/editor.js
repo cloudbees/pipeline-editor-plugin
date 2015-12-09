@@ -157,9 +157,10 @@ function addAutoJoinHooks(pipeline) {
       // anchor, so ignore it. See above. 
       return;
     }
-    
-    if(isCollapsed($(this)) === true) {
-      $("#pipeline-visual-editor .autojoin").click();
+
+    var $this = $(this);
+    if(isCollapsed($this) === true) {
+      $(".autojoin", $this).click();
     }    
   });
 }
