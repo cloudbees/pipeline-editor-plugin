@@ -17,8 +17,8 @@ module.exports = {
                       '</div>' +
                     '</div>';      
         
-        return renderTemplate(template, stepInfo, { "actionId" : actionId });
-      
+        var info = $.extend({"command" : ""}, stepInfo);
+        return renderTemplate(template, info, { "actionId" : actionId });      
     },
     
     readChanges : function(actionId, currentStep) {

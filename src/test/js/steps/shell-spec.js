@@ -29,7 +29,17 @@ describe('json storage basics', function() {
           assert.equal("// no command set for step", sh.generateScript({}));          
           done();
         });
-      });      
+      });   
+      
+      
+      it('should have default empty shell command', function (done) {
+        jsTest.onPage(function() {
+          var sh = jsTest.requireSrcModule("steps/shell");
+          var block = sh.renderEditor({}, "1234");
+          expect(block.indexOf("{{command}}")).toBe(-1);          
+          done();
+        });
+      });    
 
       
     }); 
