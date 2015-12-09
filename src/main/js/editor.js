@@ -284,8 +284,8 @@ function openEditor(pipeline, actionId, formFields) {
   
   addApplyChangesHooks(pipeline, formFields);
     
-  $(".open-editor").removeClass('active');
-  $(".open-editor[data-action-id='" + actionId + "']").addClass('active');
+  $(".open-editor").removeClass('selected');
+  $(".open-editor[data-action-id='" + actionId + "']").addClass('selected');
   $(':input', editPanel).first().focus();
 }
 
