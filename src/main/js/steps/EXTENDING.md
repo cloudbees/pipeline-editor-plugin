@@ -36,4 +36,4 @@ exports.editor = {
 
 it is up to each editor to render a form - in this case a template is used that reads value out of the stepInfo object. It also has to save changes back to the current step (in this case only name and url are saved or displayed). Finally the results are rendered as workflow script.
 
-In theory (to be validated) adding an editor to window.pipelineEditors object (hashmap) where the key is the type, is all that is needed. see `all.js` for how this is done. This could be done by additional plugins (adjuncts).
+// TODO: Get this info from Jenkins. See CJP-3974
