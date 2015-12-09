@@ -1,10 +1,11 @@
-
 <div class="list-group step-listing">
+    <div class="step-list">
     {{#each steps}}
-    <button class="list-group-item open-editor" data-action-id="{{../stageId}}-{{@index}}">{{name}}</button>
+        <button class="list-group-item open-editor" data-action-id="{{../stageId}}-{{@index}}">{{name}}</button>
     {{/each}}
+    </div>
     <button class="list-group-item open-add-step edit-mode" data-stage-id="{{stageId}}">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <span class="opaque-text">Add step</span>
     </button>
     <div id="add-step-popover-{{stageId}}" data-placement="bottom"></div>
 </div>

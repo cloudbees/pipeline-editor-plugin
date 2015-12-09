@@ -38,7 +38,7 @@ exports.drawPipeline = function (pipeline, formFields) {
         var subStageId = currentId + "-" + j;                
         subStages += parStageBlock(stage.name, subStageId, subStage, currentId);
       }      
-      var stageElement = '<div class="col-md-3"><ul class="list-unstyled">' + subStages + addStreamButton(currentId) + '</ul></div>';
+      var stageElement = '<div class="col-md-3 outer-stage" data-stage-id="' + currentId + '"><ul class="list-unstyled">' + subStages + addStreamButton(currentId) + '</ul></div>';
       pRow.append(stageElement);      
     }
   }
@@ -75,18 +75,18 @@ function addStreamButton(stageId) {
 }
 
 function addConfigStageListener(pipeline, formFields) {
-  $(".open-stage-config").click(function() {
+  $("#pipeline-visual-editor").on('click', ".open-stage-config", function() {
       var stageId = $( this ).attr('data-stage-id');
       var stageConfigP = $("#edit-stage-popover-" + stageId);
       var popContent = require('./templates/stage-config-block.hbs')({stageId: stageId});
       stageConfigP.popover({'content' : popContent, 'html' : true});
       stageConfigP.popover('show');
-      $('#toggleParallel-' + stageId).click(function() {
+      $('#toggleParallel-' + stageId).off('click').click(function() {
         wf.toggleParallel(pipeline, stageId);
         redrawPipeline(pipeline, formFields);
         stageConfigP.popover('toggle');
       });
-      $('#cancelStageConfig-' + stageId).click(function () {
+      $('#cancelStageConfig-' + stageId).off('click').click(function () {
         stageConfigP.popover('toggle');
       });
       
@@ -94,19 +94,29 @@ function addConfigStageListener(pipeline, formFields) {
 }
 
 /** add a new stream (sometimes called a branch) to the end of the list of streams in a stage */
-function addNewStreamListener(pipeline, formFields) {
-  $(".open-add-stream").click(function(){
+function addNewStreamListener(pipeline) {
+  $("#pipeline-visual-editor").on('click', ".open-add-stream", function(){
     var stageId = $( this ).attr('data-stage-id');
     var newStreamP = $('#add-stream-popover-' + stageId);
     newStreamP.popover({'content' : newStreamBlock(stageId), 'html' : true});
     newStreamP.popover('show');      
-    $('#addStreamBtn-' + stageId).click(function() {
+    $('#addStreamBtn-' + stageId).off('click').click(function() {
         newStreamP.popover('toggle');
         var newStreamName = $("#newStreamName-" + stageId).val();
         if (newStreamName !== '') {
           var coords = wf.stageIdToCoordinates(stageId);
-          pipeline[coords[0]].streams.push({"name" : newStreamName, "steps" : []});
-          redrawPipeline(pipeline, formFields);
+          var outerStage = pipeline[coords[0]];
+          var newStream = {"name": newStreamName, "steps": []};
+          
+          outerStage.streams.push(newStream);
+          
+          // Insert the new stream stage directly into the DOM...
+          var subStageId = stageId + "-" + (outerStage.streams.length - 1);
+          var streamView = parStageBlock(outerStage.name, subStageId, newStream, stageId);          
+          $(streamView).insertAfter(
+              $(".outer-stage[data-stage-id='" + stageId + "'] ul li").last()
+          );            
+          lines.autoJoinDelay(pipeline, 0); // redraw immediately ... no delay
         }
     });      
   });  
@@ -121,27 +131,27 @@ function addNewStreamListener(pipeline, formFields) {
 
 /** We will want to redraw the joins in some cases */
 function addAutoJoinHooks(pipeline) {
-  $(".autojoin").click(function() {
+  $("#pipeline-visual-editor").on('click', ".autojoin", function() {
     lines.autoJoinDelay(pipeline);
   });
 }
 
 /** clicking on a step will open the editor */
 function addOpenStepListener(pipeline, formFields) {
-  $(".open-editor").click(function(){
+  $("#pipeline-visual-editor").on('click', ".open-editor", function(){
     openEditor(pipeline, $( this ).attr('data-action-id'), formFields);
   });
 }
 
 /** clicking on add a step should open a popover with a selection of available steps */
 function addNewStepListener(pipeline, formFields) { // jshint ignore:line
-  $(".open-add-step").click(function(){
+  $("#pipeline-visual-editor").on('click', ".open-add-step", function(){
     var stageId = $( this ).attr('data-stage-id');
     var newStepP = $('#add-step-popover-' + stageId);
     newStepP.popover({'content' : newStepBlock(stageId, steps), 'html' : true});
     newStepP.popover('show');      
 
-    $("#addStepBtn-" + stageId).click(function() {        
+    $("#addStepBtn-" + stageId).off('click').click(function() {        
         var selected = document.querySelector('input[name="newStepType-' + stageId + '"]:checked');
         var name = $('#newStepName-' + stageId).val();
         newStepP.popover('toggle');
@@ -149,9 +159,12 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
             if (!name) {
               name = "New Step";
             }
-            var actionId = wf.insertStep(pipeline, stageId, {"type": selected.value, "name" : name});                      
-            redrawPipeline(pipeline, formFields);
-            openEditor(pipeline, actionId, formFields);
+            var newStep = {"type": selected.value, "name": name};
+            var insertResult = wf.insertStep(pipeline, stageId, newStep);
+            writeOutChanges(pipeline, formFields);
+            refreshStepListing(stageId, insertResult.stepContainer.steps);
+            lines.autoJoinDelay(pipeline, 0); // redraw immediately ... no delay
+            openEditor(pipeline, insertResult.actionId, formFields);            
         }
     });
   });
@@ -168,11 +181,11 @@ function newStepBlock(stageId, pipelineEditors) {
 
 /** clicking on add a stage will at least ask a user for a name */
 function addNewStageListener(pipeline, formFields) { // jshint ignore:line
-  $(".open-add-stage").click(function() {
+  $("#pipeline-visual-editor").on('click', ".open-add-stage", function() {
       var newStageP = $('#add-stage-popover');
       newStageP.popover({'content' : newStageBlock(), 'html' : true});
       newStageP.popover('show');      
-      $('#addStageBtn').click(function() {
+      $('#addStageBtn').off('click').click(function() {
           newStageP.popover('toggle');
           var newStageName = $("#newStageName").val();
           if (newStageName !== '') {
@@ -242,6 +255,11 @@ function stepListing(stageId, steps)  {
     });
 }
 
+function refreshStepListing(stageId, steps)  {
+    var content = stepListing(stageId, steps);
+    $('#' + stageId + ' .step-listing').replaceWith(content);
+}
+
 /**
  * Taking the actionId (co-ordinates), find the step info and load it up.
  */
@@ -260,6 +278,8 @@ function openEditor(pipeline, actionId, formFields) {
   $('#editor-heading').text(stageInfo.name + " / " + stepInfo.name);
   
   addApplyChangesHooks(pipeline, formFields);
+    
+  $(".open-editor[data-action-id='" + actionId + "']").focus();
 }
 
 /**

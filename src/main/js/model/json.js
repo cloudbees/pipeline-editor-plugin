@@ -50,7 +50,7 @@ var simpleSample = [
     "name" : "Test",
     "streams" : [
       {"name" : "Unit", "steps" : [
-        {"type": "sh", "name" : "Run unit test suit", "command" : "./bin/ci/test"}
+        {"type": "sh", "name" : "Run unit test suite", "command" : "./bin/ci/test"}
       ]},
       {"name" : "Integration","steps" : [
         {"type": "sh", "name" : "Run slower tests", "command" : "./bin/ci/integration-tests"}        

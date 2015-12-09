@@ -79,12 +79,12 @@ describe('Add steps to stages', function() {
             ];  
             assert.equal(0, pipe[0].steps.length);
             var newStep = {"type" : "sh", "command" :"x", "name": "foo"};
-            var resultActionId = wf.insertStep(pipe, "stage-0", newStep);
-            assert.equal("stage-0-0", resultActionId);
+            var insertResult = wf.insertStep(pipe, "stage-0", newStep);
+            assert.equal("stage-0-0", insertResult.actionId);
             assert.equal(1, pipe[0].steps.length);
             assert.deepEqual(newStep, pipe[0].steps[0]); 
             
-            assert.equal("stage-0-1", wf.insertStep(pipe, "stage-0", newStep));
+            assert.equal("stage-0-1", wf.insertStep(pipe, "stage-0", newStep).actionId);
             done();
         });
     });
@@ -108,8 +108,8 @@ describe('Add steps to stages', function() {
             ];  
             assert.equal(1, pipe[1].streams[0].steps.length);
             var newStep = {"type" : "sh", "command" :"x", "name": "foo"};
-            var resultActionId = wf.insertStep(pipe, "stage-1-0", newStep);
-            assert.equal("stage-1-0-1", resultActionId);
+            var insertResult = wf.insertStep(pipe, "stage-1-0", newStep);
+            assert.equal("stage-1-0-1", insertResult.actionId);
             assert.equal(2, pipe[1].streams[0].steps.length);
             done();
         });
