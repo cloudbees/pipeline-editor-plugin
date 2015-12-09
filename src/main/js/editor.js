@@ -104,6 +104,12 @@ function addNewStreamListener(pipeline) {
     $('#addStreamBtn-' + stageId).off('click').click(function() {
         handleAddStream(newStreamP, stageId, pipeline);
     });      
+    $("#newStreamName-" + stageId).off('keydown').keydown(function (e) {
+      if (e.which == 13) {
+        handleAddStream(newStreamP, stageId, pipeline);
+      }
+    });
+    $("#newStreamName-" + stageId).focus();
   });  
   
 }
@@ -175,6 +181,11 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
     $("#addStepBtn-" + stageId).off('click').click(function() {        
        handleAddNewStep(newStepP, pipeline, formFields, stageId);
     });
+    $("#newStepName-" + stageId).off('keydown').keydown(function(e) {
+      if (e.which == 13) {
+        handleAddNewStep(newStepP, pipeline, formFields, stageId);
+      }
+    });
   });
 }
 
@@ -207,17 +218,28 @@ function newStepBlock(stageId, pipelineEditors) {
 /** clicking on add a stage will at least ask a user for a name */
 function addNewStageListener(pipeline, formFields) { // jshint ignore:line
   $("#pipeline-visual-editor").on('click', ".open-add-stage", function() {
-      var newStageP = $('#add-stage-popover');
-      newStageP.popover({'content' : newStageBlock(), 'html' : true});
-      newStageP.popover('show');      
-      $('#addStageBtn').off('click').click(function() {
-          newStageP.popover('toggle');
-          var newStageName = $("#newStageName").val();
-          if (newStageName !== '') {
-            pipeline.push({"name" : newStageName, "steps" : []});
-            redrawPipeline(pipeline, formFields);
-          }
-      });      
+    var newStageP = $('#add-stage-popover');
+    newStageP.popover({'content': newStageBlock(), 'html': true});
+    newStageP.popover('show');
+
+    function addStage() {
+      newStageP.popover('toggle');
+      var newStageName = $("#newStageName").val();
+      if (newStageName !== '') {
+        pipeline.push({"name": newStageName, "steps": []});
+        redrawPipeline(pipeline, formFields);
+      }
+    }
+
+    $('#addStageBtn').off('click').click(function() {
+      addStage();
+    });
+    $("#newStageName").off('keydown').keydown(function (e) {
+      if (e.which == 13) {
+        addStage();
+      }
+    });
+    $("#newStageName").focus();
   });
 }
 
