@@ -84,6 +84,7 @@ function addConfigStageListener(pipeline, formFields) {
       var popContent = require('./templates/stage-config-block.hbs')({stageId: stageId});
       stageConfigP.popover({'content' : popContent, 'html' : true});
       stageConfigP.popover('show');
+      
       $('#toggleParallel-' + stageId).click(function() {
         wf.toggleParallel(pipeline, stageId);
         redrawPipeline(pipeline, formFields);

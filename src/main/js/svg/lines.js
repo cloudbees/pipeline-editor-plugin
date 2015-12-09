@@ -43,8 +43,16 @@ exports.autoJoin = autoJoin;
  * Draw the connecting lines using SVG and the div ids. 
  */
 function joinWith(pilList, currentId) {
-  for (var i = 0; i < pilList.length; i++) {
-    Belay.on("#" + pilList[i], "#" + currentId);
+  if (pilList.length > 1) {
+    for (var i = 0; i < pilList.length; i++) {
+      
+      console.log("#" + currentId + "_joiner");
+      console.log("#" + pilList[i]);
+      console.log("ok");
+      Belay.on("#" + pilList[i], "#" + currentId + "_joiner");
+    }    
+  } else {
+    Belay.on("#" + pilList[0], "#" + currentId);
   }
 }
 
