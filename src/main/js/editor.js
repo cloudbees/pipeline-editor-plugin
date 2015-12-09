@@ -132,8 +132,29 @@ function handleAddStream(newStreamP, stageId, pipeline) {
 
 /** We will want to redraw the joins in some cases */
 function addAutoJoinHooks(pipeline) {
-  $("#pipeline-visual-editor").on('click', ".autojoin", function() {
+  $("#pipeline-visual-editor").on('click', ".autojoin", function(event) {
     lines.autoJoinDelay(pipeline);
+    toggleCollapsed($(this), '.stage-block');
+    event.workflowStageBlockToggled = true;
+  });
+  
+  // The toggling of the stage open/close happens based on the .autojoin
+  // inside the .stage-block. As such, stage block expand/collapse only
+  // happens when clicking on the link, which is a bit fidgety for the user.
+  // The following listener listens for clicks on the .stage-block and, if
+  // it's in a collapsed state, it "forwards" the click event on to the 
+  // .autojoin, forcing the block to expand. None of this happens if the
+  // block is already expanded.
+  $("#pipeline-visual-editor").on('click', ".stage-block", function(event) {
+    if (event.workflowStageBlockToggled) {
+      // This event was bubbled up from a click on the
+      // anchor, so ignore it. See above. 
+      return;
+    }
+    
+    if(isCollapsed($(this)) === true) {
+      $("#pipeline-visual-editor .autojoin").click();
+    }    
   });
 }
 
@@ -182,7 +203,6 @@ function newStepBlock(stageId, pipelineEditors) {
       steps: pipelineEditors
   });  
 }
-
 
 /** clicking on add a stage will at least ask a user for a name */
 function addNewStageListener(pipeline, formFields) { // jshint ignore:line
@@ -300,5 +320,28 @@ function handleEditorSave(pipeline, actionId, formFields) {
       //exports.drawPipeline(); -- don't want to do this as it collapses the step listing.
       //TODO: make it just update the step name in the view 
       writeOutChanges(pipeline, formFields);
+  }
+}
+
+function isCollapsed(element, stateMarkerParent) {
+  if (stateMarkerParent) {
+    return element.closest(stateMarkerParent).hasClass('collapsed');
+  } else {
+    return element.hasClass('collapsed');
+  }
+}
+function toggleCollapsed(element, stateMarkerParent) {
+  if (isCollapsed(element, stateMarkerParent) === true) {
+    if (stateMarkerParent) {
+      return element.closest(stateMarkerParent).removeClass('collapsed');
+    } else {
+      return element.removeClass('collapsed');
+    }
+  } else {
+    if (stateMarkerParent) {
+      return element.closest(stateMarkerParent).addClass('collapsed');
+    } else {
+      return element.addClass('collapsed');
+    }
   }
 }
