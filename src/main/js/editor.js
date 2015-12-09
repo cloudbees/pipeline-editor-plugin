@@ -98,36 +98,37 @@ function addNewStreamListener(pipeline) {
   $("#pipeline-visual-editor").on('click', ".open-add-stream", function(){
     var stageId = $( this ).attr('data-stage-id');
     var newStreamP = $('#add-stream-popover-' + stageId);
-    newStreamP.popover({'content' : newStreamBlock(stageId), 'html' : true});
+    var newStreamBlock = require('./templates/stream-block.hbs')({stageId: stageId});
+    newStreamP.popover({'content' : newStreamBlock, 'html' : true});
     newStreamP.popover('show');      
     $('#addStreamBtn-' + stageId).off('click').click(function() {
-        newStreamP.popover('toggle');
-        var newStreamName = $("#newStreamName-" + stageId).val();
-        if (newStreamName !== '') {
-          var coords = wf.stageIdToCoordinates(stageId);
-          var outerStage = pipeline[coords[0]];
-          var newStream = {"name": newStreamName, "steps": []};
-          
-          outerStage.streams.push(newStream);
-          
-          // Insert the new stream stage directly into the DOM...
-          var subStageId = stageId + "-" + (outerStage.streams.length - 1);
-          var streamView = parStageBlock(outerStage.name, subStageId, newStream, stageId);          
-          $(streamView).insertAfter(
-              $(".outer-stage[data-stage-id='" + stageId + "'] ul li").last()
-          );            
-          lines.autoJoinDelay(pipeline, 0); // redraw immediately ... no delay
-        }
+        handleAddStream(newStreamP, stageId, pipeline);
     });      
   });  
-
-
-  /** the popover for a new stream */
-  function newStreamBlock(stageId) {
-    return require('./templates/stream-block.hbs')({stageId: stageId});
-  }
   
 }
+
+
+/** add a new stream to an existing stage and redraw just that section */
+function handleAddStream(newStreamP, stageId, pipeline) {
+  newStreamP.popover('toggle');
+  var newStreamName = $("#newStreamName-" + stageId).val();
+  if (newStreamName !== '') {
+    var coords = wf.stageIdToCoordinates(stageId);
+    var outerStage = pipeline[coords[0]];
+    var newStream = {"name": newStreamName, "steps": []};
+    outerStage.streams.push(newStream);
+    // Insert the new stream stage directly into the DOM...
+    var subStageId = stageId + "-" + (outerStage.streams.length - 1);
+    var streamView = parStageBlock(outerStage.name, subStageId, newStream, stageId);          
+    $(streamView).insertAfter(
+        $(".outer-stage[data-stage-id='" + stageId + "'] ul li").last()
+    );            
+    lines.autoJoinDelay(pipeline, 0); // redraw immediately ... no delay
+  }
+}
+
+
 
 /** We will want to redraw the joins in some cases */
 function addAutoJoinHooks(pipeline) {
@@ -150,24 +151,28 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
     var newStepP = $('#add-step-popover-' + stageId);
     newStepP.popover({'content' : newStepBlock(stageId, steps), 'html' : true});
     newStepP.popover('show');      
-
     $("#addStepBtn-" + stageId).off('click').click(function() {        
-        var selected = document.querySelector('input[name="newStepType-' + stageId + '"]:checked');
-        var name = $('#newStepName-' + stageId).val();
-        newStepP.popover('toggle');
-        if (selected) {
-            if (!name) {
-              name = "New Step";
-            }
-            var newStep = {"type": selected.value, "name": name};
-            var insertResult = wf.insertStep(pipeline, stageId, newStep);
-            writeOutChanges(pipeline, formFields);
-            refreshStepListing(stageId, insertResult.stepContainer.steps);
-            lines.autoJoinDelay(pipeline, 0); // redraw immediately ... no delay
-            openEditor(pipeline, insertResult.actionId, formFields);            
-        }
+       handleAddNewStep(newStepP, pipeline, formFields, stageId);
     });
   });
+}
+
+/** Add the new step and redraw just the current stage listing of steps */
+function handleAddNewStep(newStepP, pipeline, formFields, stageId) {
+  var selected = document.querySelector('input[name="newStepType-' + stageId + '"]:checked');
+  var name = $('#newStepName-' + stageId).val();
+  newStepP.popover('toggle');
+  if (selected) {
+      if (!name) {
+        name = "New Step";
+      }
+      var newStep = {"type": selected.value, "name": name};
+      var insertResult = wf.insertStep(pipeline, stageId, newStep);
+      writeOutChanges(pipeline, formFields);
+      refreshStepListing(stageId, insertResult.stepContainer.steps);
+      lines.autoJoinDelay(pipeline, 0); // redraw immediately ... no delay
+      openEditor(pipeline, insertResult.actionId, formFields);            
+  }
 }
 
 /** the popover for a new step */
