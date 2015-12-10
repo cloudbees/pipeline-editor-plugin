@@ -105,7 +105,7 @@ function addNewStreamListener(pipeline) {
         handleAddStream(newStreamP, stageId, pipeline);
     });      
     $("#newStreamName-" + stageId).off('keydown').keydown(function (e) {
-      if (e.which == 13) {
+      if (e.which === 13) {
         handleAddStream(newStreamP, stageId, pipeline);
       }
     });
@@ -183,7 +183,7 @@ function addNewStepListener(pipeline, formFields) { // jshint ignore:line
        handleAddNewStep(newStepP, pipeline, formFields, stageId);
     });
     $("#newStepName-" + stageId).off('keydown').keydown(function(e) {
-      if (e.which == 13) {
+      if (e.which === 13) {
         handleAddNewStep(newStepP, pipeline, formFields, stageId);
       }
     });
@@ -236,7 +236,7 @@ function addNewStageListener(pipeline, formFields) { // jshint ignore:line
       addStage();
     });
     $("#newStageName").off('keydown').keydown(function (e) {
-      if (e.which == 13) {
+      if (e.which === 13) {
         addStage();
       }
     });
