@@ -317,38 +317,22 @@ function refreshStepListing(stageId, steps)  {
  * Taking the actionId (co-ordinates), find the step info and load it up.
  */
 function openEditor(pipeline, actionId, formFields) {  
-  
-  
   var editorP = $("#show-editor-popover-" + actionId);
-  
-  
   var coordinates = wf.actionIdToStep(actionId);
-
   var stepInfo = wf.fetchStep(coordinates, pipeline);
   var editorModule = steps[stepInfo.type];
-   
   var editorHtml = editorModule.renderEditor(stepInfo, actionId); 
-  /*
-  var editPanel = $('#editor-panel');
-  editPanel.empty();
-  editPanel.append("<form id='currently-editing' data-action-id='" + actionId + "'>" + editorHtml + "</form>");    
-  
-  var stageInfo = pipeline[coordinates[0]];
-  $('#editor-heading').text(stageInfo.name + " / " + stepInfo.name);
-  
-  */
   var content = "<form class='currently-editing' data-action-id='" + actionId + "'>" + editorHtml + "</form>" + 
                 "<button class='btn btn-default close-editor-popover' data-action-id='" + actionId + "' >OK</button>";
   console.log(content);
   editorP.popover({'content' : content, 'html' : true});
   editorP.popover('show');
 
-  
   addApplyChangesHooks(pipeline, formFields);
     
   $(".open-editor").removeClass('selected');
   $(".open-editor[data-action-id='" + actionId + "']").addClass('selected');
-  //$(':input', editPanel).first().focus();
+  $('.form-group').first().focus();
 }
 
 /**
@@ -359,7 +343,6 @@ function handleEditorSave(pipeline, actionId, formFields) {
   var edModule = steps[currentStep.type];
   if (edModule.readChanges(actionId, currentStep)) {
       console.log("applied changes for " + actionId);
-      console.log(pipeline);
       writeOutChanges(pipeline, formFields);
   }
 }
