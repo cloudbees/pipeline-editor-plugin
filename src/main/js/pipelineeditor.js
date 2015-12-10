@@ -54,6 +54,14 @@ function showEditor($, confEditor, pageBody, script, json) {
     win.location.hash = "";
     Belay.off();
     confEditor.show();       
+    
+    //remove the absolute position from the bottom sticker on return
+    //otherwise the buttons may not appear until a resize. LOL (probably a better solution)
+    //TODO: must be a better way.
+    $('#bottom-sticker').attr('style', function(i, style) {
+          return style.replace(/position[^;]+;?/g, '');
+    });
+    
   });
   
   
