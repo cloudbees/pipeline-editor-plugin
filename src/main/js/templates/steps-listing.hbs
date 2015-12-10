@@ -1,7 +1,8 @@
 <div class="step-listing">
     <div class="step-list">
-    {{#each steps}}
+    {{#each steps}}        
         <button class="btn btn-default btn-block open-editor" data-action-id="{{../stageId}}-{{@index}}">{{name}}</button>
+        <div id="show-editor-popover-{{../stageId}}-{{@index}}" data-placement="bottom"></div>
     {{/each}}
     </div>
     <button class="btn btn-default btn-block open-add-step edit-mode" data-stage-id="{{stageId}}">
