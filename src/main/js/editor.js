@@ -323,7 +323,7 @@ function openEditor(pipeline, actionId, formFields) {
   var editorModule = steps[stepInfo.type];
   var editorHtml = editorModule.renderEditor(stepInfo, actionId); 
   var content = "<form class='currently-editing' data-action-id='" + actionId + "'>" + editorHtml + "</form>" + 
-                "<button class='btn btn-default close-editor-popover' data-action-id='" + actionId + "' >OK</button>";
+                "<button class='btn btn-primary close-editor-popover' data-action-id='" + actionId + "' >OK</button>";
   console.log(content);
   editorP.popover({'content' : content, 'html' : true});
   editorP.popover('show');
