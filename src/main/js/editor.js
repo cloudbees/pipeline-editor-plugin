@@ -65,7 +65,7 @@ function redrawPipeline(pipeline, formFields) {
 
 /** a parallel stage is really just a stage, but with a stack of parallel streams (each which have a name) */
 function parallelStack(subStages, currentId) {
-  return require('./templates/parallel-stack.hbs')({subStages: subStages, streamButton : addStreamButton(currentId), currentId : currentId });
+  return require('./templates/parallel-stack.hbs')({subStages: subStages, addStreamButton : addStreamButton(currentId), currentId : currentId });
 }
 
 /** This will add a plain stage to the end of the set of stages */
