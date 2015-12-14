@@ -38,8 +38,8 @@ exports.drawPipeline = function (pipeline, formFields) {
         var subStageId = currentId + "-" + j;                
         subStages += parStageBlock(stage.name, subStageId, subStage, currentId);
       }      
-      var stageElement = '<div class="col-md-3 outer-stage" data-stage-id="' + currentId + '"><ul class="list-unstyled">' + subStages + addStreamButton(currentId) + '</ul></div>';
-      pRow.append(stageElement);      
+      
+      pRow.append(parallelStack(subStages, currentId)); 
     }
   }
   pRow.append(addStageButton());
@@ -63,6 +63,10 @@ function redrawPipeline(pipeline, formFields) {
   writeOutChanges(pipeline, formFields);              
 }
 
+/** a parallel stage is really just a stage, but with a stack of parallel streams (each which have a name) */
+function parallelStack(subStages, currentId) {
+  return require('./templates/parallel-stack.hbs')({subStages: subStages, streamButton : addStreamButton(currentId), currentId : currentId });
+}
 
 /** This will add a plain stage to the end of the set of stages */
 function addStageButton() {    
