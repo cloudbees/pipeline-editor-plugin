@@ -11,7 +11,7 @@ var editors = require('./steps');
 var win = require('window-handle').getWindow();
 
 win.mic = $; //For debugging! - you can use `mic` as jquery.
-
+win.Belay = Belay;
 /* print out what editors are registered for use */
 console.log(editors);
 

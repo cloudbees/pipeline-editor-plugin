@@ -29,7 +29,9 @@ function autoJoin(pipeline) {
           currentPils[j] = currentId + "-" + j;                
         }
         for (var j=0; j < stage.streams.length; ++j) {
+          if (previousPils.length === 1) {
             joinWith(previousPils, currentPils[j]);
+          }
         }
         previousPils = currentPils;              
       }
@@ -42,7 +44,7 @@ exports.autoJoin = autoJoin;
 /**
  * Draw the connecting lines using SVG and the div ids. 
  */
-function joinWith(pilList, currentId) {
+function joinWith(pilList, currentId) {  
   for (var i = 0; i < pilList.length; i++) {
     Belay.on("#" + pilList[i], "#" + currentId);
   }
