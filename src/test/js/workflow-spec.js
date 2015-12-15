@@ -206,6 +206,49 @@ describe('Find things in the pipeline array', function() {
     
   });
   
+  it('should remove a step from the pipeline', function(done) {
+    jsTest.onPage(function() {
+      var wf = jsTest.requireSrcModule("model/workflow");
+      var pipeline = [
+        {
+        "name" : "Prepare",
+        "steps" : [          
+              {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"},          
+              {"type": "git", "name" : "Another thing", "command" : "/bin/ci/install_ruby version=2.0.1"}
+          ]    
+        }
+      ];
+      assert.equal(2, pipeline[0].steps.length);
+      wf.removeActionId(pipeline, "stage-0-0"); 
+      assert.equal(1, pipeline[0].steps.length);     
+      var expect = {"type": "git", "name" : "Another thing", "command" : "/bin/ci/install_ruby version=2.0.1"};
+      assert.deepEqual([expect], pipeline[0].steps);
+      
+      pipeline = [
+        {
+        "name" : "Prepare",
+        "streams" : [
+          {"name" : "Ruby", "steps" : [
+              {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"}
+            ]
+          },            
+          {"name" : "Ruby", "steps" : [
+              {"type": "git", "name" : "Another thing", "command" : "/bin/ci/install_ruby version=2.0.1"}
+            ]
+          }           
+         ]    
+        }
+      ];
+      
+      assert.equal(1, pipeline[0].streams[0].steps.length);       
+      wf.removeActionId(pipeline, "stage-0-0-0"); 
+      assert.equal(0, pipeline[0].streams[0].steps.length);     
+      
+      
+      done();
+    });
+  });
+  
   it('should convert to parallel automatically and toggle', function(done) {
     jsTest.onPage(function() {
       var wf = jsTest.requireSrcModule("model/workflow");
@@ -241,6 +284,7 @@ describe('Find things in the pipeline array', function() {
     });
     
   });  
+  
   
   
   

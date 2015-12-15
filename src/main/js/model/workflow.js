@@ -18,6 +18,7 @@ exports.fetchStep = fetchStep;
 exports.parallelToNormal = parallelToNormal;
 exports.makeParallel = makeParallel;
 exports.toggleParallel = toggleParallel;
+exports.removeActionId = removeActionId;
 
 /**
  * a parallel stage has to have streams
@@ -127,6 +128,17 @@ function makeParallel(pipeline, stageId) {
    
 }
 
+/** 
+ * given an action id like stage-1-2 - remove it from the pipeline
+ */
+function removeActionId(pipeline, actionId) {
+   var coords = actionIdToStep(actionId);
+   if (coords.length === 2) {
+     pipeline[coords[0]].steps.splice(coords[1], 1);
+   } else {
+     pipeline[coords[0]].streams[coords[1]].steps.splice(coords[2], 1);
+   }
+}
 
 /**
  * an actionId is something like stage-1-2 or stage-1-2-3

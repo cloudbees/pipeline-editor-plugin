@@ -243,6 +243,17 @@ function addApplyChangesHooks(pipeline, formFields) {
      var editorP = $("#show-editor-popover-" + actionId);
      editorP.popover('destroy');     
    });
+   $(".delete-current-step").click(function() {
+     if (window.confirm("Are you sure you want to delete this step?")) {
+        var actionId = $( this ).attr('data-action-id');
+        var editorP = $("#show-editor-popover-" + actionId);
+        wf.removeActionId(pipeline, actionId);
+        redrawPipeline(pipeline, formFields);
+        editorP.popover('destroy');         
+     }  
+     
+   });
+   
 }
 
 /**
@@ -321,6 +332,7 @@ function openEditor(pipeline, actionId, formFields) {
   $(".open-editor").removeClass('selected');
   $(".open-editor[data-action-id='" + actionId + "']").addClass('selected');
   $('.form-group').first().focus();
+  
 }
 
 /**
