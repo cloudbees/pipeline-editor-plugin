@@ -249,6 +249,46 @@ describe('Find things in the pipeline array', function() {
     });
   });
   
+  it('should remove a stage from the pipeline', function(done) {
+    jsTest.onPage(function() {
+      var wf = jsTest.requireSrcModule("model/workflow");
+      var pipeline = [
+        {
+        "name" : "Prepare",
+        "steps" : [          
+              {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"},          
+              {"type": "git", "name" : "Another thing", "command" : "/bin/ci/install_ruby version=2.0.1"}
+          ]    
+        }
+      ];
+      wf.removeStage(pipeline, "stage-0"); 
+      assert.equal(0, pipeline.length);
+      
+      pipeline = [
+        {
+        "name" : "Prepare",
+        "streams" : [
+          {"name" : "Ruby", "steps" : [
+              {"type": "sh", "name" : "Install Ruby", "command" : "/bin/ci/install_ruby version=2.0.1"}
+            ]
+          },            
+          {"name" : "Ruby", "steps" : [
+              {"type": "git", "name" : "Another thing", "command" : "/bin/ci/install_ruby version=2.0.1"}
+            ]
+          }           
+         ]    
+        }
+      ];
+      
+      
+      assert.equal(2, pipeline[0].streams.length);     
+      wf.removeStage(pipeline, "stage-0-0");      
+      assert.equal(1, pipeline[0].streams.length);     
+      
+      done();
+    });
+  });
+  
   it('should convert to parallel automatically and toggle', function(done) {
     jsTest.onPage(function() {
       var wf = jsTest.requireSrcModule("model/workflow");

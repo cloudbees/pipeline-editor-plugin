@@ -81,18 +81,34 @@ function addStreamButton(stageId) {
 function addConfigStageListener(pipeline, formFields) {
   $("#pipeline-visual-editor").on('click', ".open-stage-config", function() {
       var stageId = $( this ).attr('data-stage-id');
+      var coords = wf.stageIdToCoordinates(stageId);
+      var currentStage = pipeline[coords[0]];
+      
       var stageConfigP = $("#edit-stage-popover-" + stageId);
-      var popContent = require('./templates/stage-config-block.hbs')({stageId: stageId});
+      var popContent = require('./templates/stage-config-block.hbs')({stageId: stageId, stageName: currentStage.name});
       stageConfigP.popover({'content' : popContent, 'html' : true});
       stageConfigP.popover('show');
       $('#toggleParallel-' + stageId).off('click').click(function() {
         wf.toggleParallel(pipeline, stageId);
         redrawPipeline(pipeline, formFields);
-        stageConfigP.popover('toggle');
+        stageConfigP.popover('destroy');
       });
-      $('#cancelStageConfig-' + stageId).off('click').click(function () {
-        stageConfigP.popover('toggle');
+      $('#closeStageConfig-' + stageId).off('click').click(function () {
+        var newName = $('#stageName_' + stageId).val();        
+        if (newName !== currentStage.name) {
+          currentStage.name = newName;
+          redrawPipeline(pipeline, formFields);
+        } 
+        stageConfigP.popover('destroy');
       });
+      $('#deleteStage-' + stageId).off('click').click(function() {
+        if (window.confirm("Are you sure you want to delete this stage?")) {
+          wf.removeStage(pipeline, stageId);
+          redrawPipeline(pipeline, formFields);
+          stageConfigP.popover('destroy');
+        }
+      });
+      
       
   });
 }
@@ -319,11 +335,7 @@ function openEditor(pipeline, actionId, formFields) {
       actionId : actionId, 
       editorHtml: editorHtml      
   });
-  /*
-  var content = "<form class='currently-editing' data-action-id='" + actionId + "'>" + editorHtml + "</form>" + 
-                "<button class='btn btn-primary close-editor-popover' data-action-id='" + actionId + "' >OK</button><button class='btn btn-default'>Delete</button>";
-                */
-  console.log(content);
+
   editorP.popover({'content' : content, 'html' : true});
   editorP.popover('show');
 

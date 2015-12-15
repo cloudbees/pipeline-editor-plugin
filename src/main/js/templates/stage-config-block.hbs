@@ -1,5 +1,20 @@
-<div class="input-group">    
-    <button id="toggleParallel-{{stageId}}" class="btn btn-default">Toggle Parallel</button>
-    <button id="cancelStageConfig-{{stageId}}" class="btn btn-default">Cancel</button>
-</div>
+      <div class="form-group">
+        <label for="stageName_{{stageId}}">Stage name</label>
+        <input id="stageName_{{stageId}}" type="text" class="form-control"  value="{{stageName}}">
+      </div>
+
+      <div class="form-group">
+        <button id="closeStageConfig-{{stageId}}" class="btn btn-primary">Close</button>
+      <div>
+        
+      <div class="form-group">
+        <p class="help-block">You can convert this sequential block to a set of parallel branches:</p>
+        <button id="toggleParallel-{{stageId}}" class="btn btn-warning">Make parallel</button>        
+        <p>
+        <p class="help-block">Delete whole stage and all its steps:</p>          
+        <button id="deleteStage-{{stageId}}" class="btn btn-default">Delete stage</button>                  
+
+      </div>
+
+  
  

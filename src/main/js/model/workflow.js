@@ -19,6 +19,7 @@ exports.parallelToNormal = parallelToNormal;
 exports.makeParallel = makeParallel;
 exports.toggleParallel = toggleParallel;
 exports.removeActionId = removeActionId;
+exports.removeStage = removeStage;
 
 /**
  * a parallel stage has to have streams
@@ -138,6 +139,16 @@ function removeActionId(pipeline, actionId) {
    } else {
      pipeline[coords[0]].streams[coords[1]].steps.splice(coords[2], 1);
    }
+}
+
+/** Remove a whole stage */
+function removeStage(pipeline, stageId) {
+    var coords = stageIdToCoordinates(stageId);
+    if (coords.length === 1) {
+      pipeline.splice(coords[0], 1);
+    } else {
+      pipeline[coords[0]].streams.splice(coords[1], 1);
+    }
 }
 
 /**
