@@ -10,6 +10,7 @@ var editorModules = {
   "sh" : require('./shell'),
   "git" : require('./git'),
   "stash" : require('./stash'),
+  "sleep" : require("./sleep"),
   "rick" : require('./rick')  
 };
 

@@ -337,8 +337,10 @@ function addApplyChangesHooks(pipeline, formFields) {
  * For the given pipeline, put the values in the script and json form fields.
  */ 
 function writeOutChanges(pipeline, formFields) {
-    formFields.script.val(wf.toWorkflow(pipeline, steps));
+    var generatedScript = wf.toWorkflow(pipeline, steps);
+    formFields.script.val(generatedScript);
     formFields.json.val(stringify.writeJSON(pipeline));
+    console.log(generatedScript);
 }
 exports.writeOutChanges = writeOutChanges;
 

@@ -77,7 +77,7 @@ function showEditor($, confEditor, pageBody, script, json) {
   h.drawPipeline(pipeline, {"script" : script, "json" : json });
   reJoinOnResize(pipeline);
   
-  window.onpopstate = function(event) {
+  window.onpopstate = function() {
       window.location = window.location.pathname;
   };
 
