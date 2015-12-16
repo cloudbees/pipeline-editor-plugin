@@ -9,9 +9,11 @@
 var editorModules = {
   "sh" : require('./shell'),
   "git" : require('./git'),
-  "stash" : require('./stash'),
   "sleep" : require("./sleep"),
+  "input" : require("./input"),
   "archive" : require("./archive"),
+  "stash" : require('./stash'),
+  
   "rick" : require('./rick')  
 };
 
