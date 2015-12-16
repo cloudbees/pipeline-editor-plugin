@@ -12,9 +12,9 @@ var editorModules = {
   "sleep" : require("./sleep"),
   "input" : require("./input"),
   "archive" : require("./archive"),
-  "stash" : require('./stash'),
-  
-  "rick" : require('./rick')  
+  "stash" : require('./stash'),  
+  "rick" : require('./rick'),
+  "workflow" : require('./workflowScript') 
 };
 
 module.exports = editorModules;
