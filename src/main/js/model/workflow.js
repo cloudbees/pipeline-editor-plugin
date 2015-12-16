@@ -141,7 +141,9 @@ function removeActionId(pipeline, actionId) {
    }
 }
 
-/** Remove a whole stage */
+/** Remove a whole stage, which may actually be a streamId or a stageId
+ * stage-0 or stage-0-1 for example.
+ */
 function removeStage(pipeline, stageId) {
     var coords = stageIdToCoordinates(stageId);
     if (coords.length === 1) {

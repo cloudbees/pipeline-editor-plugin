@@ -4,10 +4,10 @@
             <a role="button" class="autojoin" data-toggle="collapse" href="#{{subStageId}}_collapse">{{stageName}}:{{subStage.name}}</a>
             <div class="collapse" id="{{subStageId}}_collapse">{{{stepListing}}}</div>
             
-            <a role="button" class="open-stream-config" data-stage-id="{{currentId}}">
+            <a role="button" class="open-stream-config" data-stage-id="{{stageId}}" data-stream-id="{{subStageId}}">
               <span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span>
             </a>
-            <div id="edit-stage-popover-{{currentId}}" data-placement="bottom"></div>
+            <div id="edit-stage-popover-{{subStageId}}" data-placement="bottom"></div>
             
         </div>
     </div>

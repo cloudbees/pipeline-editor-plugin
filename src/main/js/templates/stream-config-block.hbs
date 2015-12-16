@@ -1,0 +1,23 @@
+<div class="form-group">
+  <label for="stageName_{{stageId}}">Stage name</label>
+  <input id="stageName_{{stageId}}" type="text" class="form-control"  value="{{stageName}}">
+</div>
+
+<div class="form-group">
+  <label for="stageName_{{streamId}}">Parallel Branch name</label>
+  <input id="streamName_{{streamId}}" type="text" class="form-control"  value="{{streamName}}">
+</div>
+
+<div class="form-group">
+  <button id="closeStageConfig-{{stageId}}" class="btn btn-primary">Close</button>
+<div>
+  
+<div class="form-group">
+  <p class="help-block">You can convert this parallel set of branches to a single stage:</p>
+  <button id="makeSequential-{{stageId}}" class="btn btn-warning">Convert to non parallel</button>        
+  <p>
+  <p class="help-block">Delete whole stage, or just the current branch:</p>          
+  <button id="deleteStream-{{streamId}}" class="btn btn-default">Delete branch</button>                  
+  <button id="deleteStage-{{stageId}}" class="btn btn-default">Delete stage</button>                  
+
+</div>

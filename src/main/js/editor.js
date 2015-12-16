@@ -54,6 +54,7 @@ exports.drawPipeline = function (pipeline, formFields) {
   addNewStepListener(pipeline, formFields);
   
   addConfigStageListener(pipeline, formFields);
+  addConfigStreamListener(pipeline, formFields);
   
 };
 
@@ -78,6 +79,7 @@ function addStreamButton(stageId) {
   return require('./templates/stream-button.hbs')({stageId: stageId});
 }
 
+/** show a popover for changing stage level settings, or deleting */
 function addConfigStageListener(pipeline, formFields) {
   $("#pipeline-visual-editor").on('click', ".open-stage-config", function() {
       var stageId = $( this ).attr('data-stage-id');
@@ -112,6 +114,65 @@ function addConfigStageListener(pipeline, formFields) {
       
   });
 }
+
+/** popover for changing stream settings for a parallel stage, including deleting */
+function addConfigStreamListener(pipeline, formFields) {
+  $("#pipeline-visual-editor").on('click', ".open-stream-config", function() {
+      var stageId = $( this ).attr('data-stage-id');
+      var streamId = $( this ).attr('data-stream-id');
+      var coords = wf.stageIdToCoordinates(streamId);
+      var currentStage = pipeline[coords[0]];
+      var currentStream = currentStage.streams[coords[1]];
+      
+      console.log(stageId);
+      var streamConfigP = $("#edit-stage-popover-" + streamId);
+      var popContent = require('./templates/stream-config-block.hbs')(
+          { stageId: stageId, 
+            streamId: streamId, 
+            stageName: currentStage.name,
+            streamName: currentStage.streams[coords[1]].name
+          });
+      streamConfigP.popover({'content' : popContent, 'html' : true});
+      streamConfigP.popover('show');
+      
+      $('#makeSequential-' + stageId).off('click').click(function() {
+        wf.parallelToNormal(pipeline, stageId);
+        redrawPipeline(pipeline, formFields);
+        streamConfigP.popover('destroy');
+      });
+      
+      $('#closeStageConfig-' + stageId).off('click').click(function () {
+        var newName = $('#stageName_' + stageId).val();        
+        var newStreamName = $('#streamName_' + streamId).val();        
+        if (newName !== currentStage.name || newStreamName !== currentStream.name) {
+          currentStage.name = newName;
+          currentStream.name = newStreamName;
+          redrawPipeline(pipeline, formFields);
+        } 
+        streamConfigP.popover('destroy');
+      });
+      
+      $('#deleteStage-' + stageId).off('click').click(function() {
+        if (window.confirm("Are you sure you want to delete the whole stage and all its parallel branches?")) {
+          wf.removeStage(pipeline, stageId);
+          redrawPipeline(pipeline, formFields);
+          streamConfigP.popover('destroy');
+        }
+      });
+      
+      $('#deleteStream-' + streamId).off('click').click(function() {
+        if (window.confirm("Are you sure you want to delete branch?")) {
+          wf.removeStage(pipeline, streamId);
+          redrawPipeline(pipeline, formFields);
+          streamConfigP.popover('destroy');
+        }
+      });
+
+      
+      
+  });
+}
+
 
 /** add a new stream (sometimes called a branch) to the end of the list of streams in a stage */
 function addNewStreamListener(pipeline) {
@@ -289,7 +350,7 @@ function parStageBlock(stageName, subStageId, subStage, stageId) {
       stageName: stageName,
       subStageId: subStageId,
       subStage: subStage,
-      currentId: stageId,
+      stageId: stageId,
       stepListing: stepListing(subStageId, subStage.steps)
   });
 }
