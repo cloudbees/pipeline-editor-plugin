@@ -46,7 +46,7 @@ function showEditor($, confEditor, pageBody, script, json) {
                   fixFlowCSS() +
                   pipelineEditorArea() +
                   detailContainer() +
-                  "<div class='container'><input id='back-to-config' type=button class='btn btn-primary' value='Done'></input></div>"+
+                  "<div class='container'><input id='back-to-config' type=button class='btn btn-primary' value='Save'></input></div>"+
                   "</div></div>");
                   
   $('#back-to-config').click(function() {          
@@ -54,14 +54,14 @@ function showEditor($, confEditor, pageBody, script, json) {
     win.location.hash = "";
     Belay.off();
     confEditor.show();       
+    $('#main-panel > form').submit();
     
     //remove the absolute position from the bottom sticker on return
     //otherwise the buttons may not appear until a resize. LOL (probably a better solution)
     //TODO: must be a better way.
     $('#bottom-sticker').attr('style', function(i, style) {
           return style.replace(/position[^;]+;?/g, '');
-    });
-    
+    });    
   });
   
   
@@ -76,6 +76,11 @@ function showEditor($, confEditor, pageBody, script, json) {
   
   h.drawPipeline(pipeline, {"script" : script, "json" : json });
   reJoinOnResize(pipeline);
+  
+  window.onpopstate = function(event) {
+      window.location = window.location.pathname;
+  };
+
    
 }
 
