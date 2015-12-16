@@ -8,7 +8,7 @@ module.exports = {
       // provide a form to edit
       var template = '<div class="form-group">' +
                       '<label for="{{actionId}}_seconds">How many seconds to sleep</label>' +
-                      '<input type="number" id="{{actionId}}_seconds" class="form-control"/>' +
+                      '<input type="number" id="{{actionId}}_seconds" class="form-control" value="{{sleepSeconds}}">' +
                       '<p class="help-block">Wait for the specified number of seconds.</p>' +
                       '</div>' +
                       '<div class="form-group">' +
@@ -17,7 +17,7 @@ module.exports = {
                       '</div>' +
                     '</div>';      
         
-        var info = $.extend({"command" : ""}, stepInfo);
+        var info = $.extend({"sleepSeconds" : "5"}, stepInfo);
         return renderTemplate(template, info, { "actionId" : actionId });      
     },
     

@@ -11,6 +11,7 @@ var editorModules = {
   "git" : require('./git'),
   "stash" : require('./stash'),
   "sleep" : require("./sleep"),
+  "archive" : require("./archive"),
   "rick" : require('./rick')  
 };
 
