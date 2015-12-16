@@ -17,8 +17,8 @@ module.exports = {
                       '</div>' +
                     '</div>';      
         
-        var info = $.extend({"sleepSeconds" : "5"}, stepInfo);
-        return renderTemplate(template, info, { "actionId" : actionId });      
+        var info = $.extend({"sleepSeconds" : ""}, stepInfo);                                  
+        return renderTemplate(template, stepInfo, { "actionId" : actionId });      
     },
     
     readChanges : function(actionId, currentStep) {
