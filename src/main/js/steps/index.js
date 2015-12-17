@@ -13,6 +13,7 @@ var editorModules = {
   "input" : require("./input"),
   "archive" : require("./archive"),
   "stash" : require('./stash'),  
+  "unstash" : require('./unstash'),  
   "rick" : require('./rick'),
   "workflow" : require('./workflowScript') 
 };
