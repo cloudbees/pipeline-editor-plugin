@@ -24,8 +24,10 @@ You can of course add more steps, from a choice of pre-made types:
 
 The steps are implemented in [src/main/js/steps](src/main/js/steps) and the intention is to make it extensible (by this and other plugins).
 
-Parallelism is supported as first class. As you can guess by the branching and joining lines shown above. Any set of steps can be split up into parallel branches of execution: 
+Parallelism is supported as first class. As you can guess by the branching and joining lines shown above. Any set of steps can be split up into parallel branches of execution:
+ 
 ![Make Parallel](images/convert-to-parallel.png)
+
 You can then add more steps to each parallel branch, or more branches, as needed (and you can convert back too). 
 
 
