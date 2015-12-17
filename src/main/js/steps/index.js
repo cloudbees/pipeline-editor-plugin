@@ -11,6 +11,7 @@ var editorModules = {
   "git" : require('./git'),
   "sleep" : require("./sleep"),
   "input" : require("./input"),
+  "env" : require("./env"),
   "archive" : require("./archive"),
   "stash" : require('./stash'),  
   "unstash" : require('./unstash'),  
