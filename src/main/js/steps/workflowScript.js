@@ -9,7 +9,7 @@ module.exports = {
       var template = '<div class="form-group">' +
                       '<label for="{{actionId}}_command">Workflow Script</label>' +
                       '<textarea id="{{actionId}}_command" class="form-control" rows=5 style="font-family:monospace;">{{scriptSnippet}}</textarea>' +
-                      '<p class="help-block">Run any Jenkins Workflow script.</p>' +
+                      '<p class="help-block">Run any Jenkins Workflow script. See <a href="https://github.com/jenkinsci/workflow-examples" target="_blank">some examples</a>.</p>' +
                       '</div>' +
                       '<div class="form-group">' +
                         '<label for="{{actionId}}_stepName">Step name</label>' +
