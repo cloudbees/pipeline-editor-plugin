@@ -31,7 +31,7 @@ module.exports = {
     
     generateScript : function(stepInfo){
       if (stepInfo.command) {
-          return 'sh \'' + stepInfo.command.replace(/'/g, "\\'") + '\'';
+          return "sh '''" + stepInfo.command.replace(/'/g, "\\'") + "'''";
       } else {
          return '// no command set for step';
       }

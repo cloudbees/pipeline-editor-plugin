@@ -8,7 +8,7 @@ describe('json storage basics', function() {
       it('should render shell', function (done) {
         jsTest.onPage(function() {
           var sh = jsTest.requireSrcModule("steps/shell");
-          assert.equal("sh 'yeah'", sh.generateScript({'command' : "yeah"}));
+          assert.equal("sh '''yeah'''", sh.generateScript({'command' : "yeah"}));
           done();
         });
 
@@ -17,7 +17,7 @@ describe('json storage basics', function() {
       it('should escape single quotes', function (done) {
         jsTest.onPage(function() {
           var sh = jsTest.requireSrcModule("steps/shell");
-          assert.equal("sh 'ye\\'ah'", sh.generateScript({'command' : "ye'ah"}));          
+          assert.equal("sh '''ye\\'ah'''", sh.generateScript({'command' : "ye'ah"}));          
           done();
         });
       });      
